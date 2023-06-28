@@ -68,6 +68,7 @@ jobs:
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
       uses: finebits/github-actions/badges/coverlet-coverage-badge@v1.1.1
       with:
+        label-color: "343b42"
         report-root: "${{ env.test-report-root }}/**/"
         report-filename: coverage.cobertura.xml
         gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
