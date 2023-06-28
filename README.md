@@ -1,5 +1,10 @@
 # Network.RestClient: .NET REST Client
 
+[![Build and Test status](https://github.com/finebits/Network.RestClient/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/finebits/Network.RestClient/actions/workflows/build-and-test.yml)
+![Test coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/Network.RestClient-total-test-coverage.json)
+![Target](https://img.shields.io/badge/dynamic/xml?label=Target&query=//TargetFramework[1]&url=https://raw.githubusercontent.com/finebits/Network.RestClient/main/source/Network.RestClient/Network.RestClient.csproj&labelColor=343b42)
+[![License](https://img.shields.io/github/license/finebits/Network.RestClient.svg?labelColor=343b42)](https://github.com/finebits/Network.RestClient/blob/main/LICENSE)
+
 `Network.RestClient` is a .NET Standard 2.0 C# Library for interaction with REST APIs.
 
 ## Features
