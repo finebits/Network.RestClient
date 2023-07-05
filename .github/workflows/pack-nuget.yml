@@ -20,18 +20,31 @@ name: Pack Nuget
 
 on:
   workflow_dispatch:
+    inputs:
+      push-nuget:
+        description: 'Nuget will be pushed to nuget.org'
+        type: boolean
+        required: false
+        default: false
+      ignore-certificate:
+        description: 'Nuget can be pushed without a certificate'
+        type: boolean
+        required: false
+        default: false
   release:
     types: [published]
 
 env:
-  package-root: "${{ github.workspace }}/nupkgs"
-  certificate-root: "${{ github.workspace }}/certificates"
-  certificate: ${{ secrets.NUGET_SIGNING_CERT_BASE64 }}
-  certificate-password: ${{ secrets.NUGET_SIGNING_CERT_PASSWORD }}
-  nuget-project: ./source/Network.RestClient/Network.RestClient.csproj 
+  artifact-name: Finebits.Network.RestClient
+  nuget-project: ./source/Network.RestClient/Network.RestClient.csproj
   test-project: ./source/Test/Test.csproj
   configuration: Release
-  artifact-name: Finebits.Network.RestClient
+
+  package-root: "${{ github.workspace }}/nupkgs"
+  certificate-root: "${{ github.workspace }}/certificates"
+
+  certificate: ${{ secrets.NUGET_SIGNING_CERT_BASE64 }}
+  certificate-password: ${{ secrets.NUGET_SIGNING_CERT_PASSWORD }}
   nuget-apikey: ${{ secrets.NUGET_APIKEY }}
 
 jobs:
@@ -120,5 +133,5 @@ jobs:
         artifact-name: ${{ steps.nuget.outputs.artifact-full-name }}
 
     - name: Push package to nuget.org
-      if: ${{ github.event_name == 'release' && env.nuget-apikey != '' && env.certificate != '' }}
+      if: ${{ ( github.event_name == 'release' || inputs.push-nuget ) && env.nuget-apikey != '' && ( env.certificate != '' || inputs.ignore-certificate ) }}
       run: dotnet nuget push "${{ env.package-root }}/*.nupkg" --api-key "${{ env.nuget-apikey }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
