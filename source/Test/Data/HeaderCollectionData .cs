@@ -23,124 +23,199 @@ namespace Finebits.Network.RestClient.Test.Data
 {
     internal partial class HeaderCollectionTestData
     {
+        public class TupleTestData
+        {
+            public IEnumerable<(string? key, string? value)> Headers { get; }
+
+            public IEnumerable<(string key, string value)> Result { get; }
+
+            public bool IsEmpty => !Result.Any();
+
+            public TupleTestData(IEnumerable<(string? key, string? value)> headers, IEnumerable<(string key, string value)> result)
+            {
+                Headers = headers;
+                Result = result;
+            }
+        }
+
+        public class KeyValuePairTestData
+        {
+            public IEnumerable<KeyValuePair<string, IEnumerable<string?>?>> Headers { get; }
+
+            public IEnumerable<(string key, string value)> Result { get; }
+
+            public bool IsEmpty => !Result.Any();
+
+            public KeyValuePairTestData(IEnumerable<KeyValuePair<string, IEnumerable<string?>?>> headers, IEnumerable<(string key, string value)> result)
+            {
+                Headers = headers;
+                Result = result;
+            }
+        }
+
+        public class AdditionalTupleTestData : TupleTestData
+        {
+            public IEnumerable<(string? key, string? value)> AdditionalHeaders { get; }
+
+            public AdditionalTupleTestData(
+                IEnumerable<(string? key, string? value)> headers,
+                IEnumerable<(string? key, string? value)> additionalHeaders,
+                IEnumerable<(string key, string value)> result)
+                : base(headers, result)
+            {
+                AdditionalHeaders = additionalHeaders;
+            }
+        }
+
         public struct EmptyTestStructure
         { }
 
-        public static IEnumerable HeaderTupleParams
+        public static IEnumerable HeaderTupleCases
         {
             get
             {
                 yield return new TestCaseData(
-                    new[] { ("header1", "value1"), ("header2", "value2"), ("header3", "value3"), ("header4", "value4") },
-                    null
+                    "few",
+                    new TupleTestData(headers: new (string?, string?)[] { ("header1", "value1"), ("header2", "value2"), ("header3", "value3"), ("header4", "value4") },
+                                      result: new[] { ("header1", "value1"), ("header2", "value2"), ("header3", "value3"), ("header4", "value4") })
                 );
 
                 yield return new TestCaseData(
-                    new[] { ("header-name", "value1"), ("header-name", "value2"), ("header-name", "value3"), ("header-name", "value4") },
-                    null
+                    "same",
+                    new TupleTestData(headers: new (string?, string?)[] { ("header-name", "value1"), ("header-name", "value2"), ("header-name", "value3"), ("header-name", "value4") },
+                                      result: new[] { ("header-name", "value1"), ("header-name", "value2"), ("header-name", "value3"), ("header-name", "value4") })
                 );
 
                 yield return new TestCaseData(
-                    new[] { ("header1", "value1"), (null, "value2"), ("header3", null), (null, null) },
-                    new[] { ("header1", "value1"), ("header3", string.Empty) }
+                    "null",
+                    new TupleTestData(headers: new (string?, string?)[] { ("header1", "value1"), (null, "value2"), ("header3", null), (null, null) },
+                                      result: new[] { ("header1", "value1"), ("header3", string.Empty) })
                 );
 
                 yield return new TestCaseData(
-                    new List<(string, string)>(),
-                    null
+                    "empty",
+                    new TupleTestData(headers: new List<(string?, string?)>(),
+                                      result: new List<(string, string)>())
                 );
             }
         }
 
-        public static IEnumerable HeaderPairParams
+        public static IEnumerable HeaderKeyValuePairCases
         {
             get
             {
                 yield return new TestCaseData(
-                    new Dictionary<string, IEnumerable<string?>?>
-                    {
-                        { "header1", new [] { "value1", "value2", "value3" } },
-                        { "header2", new [] { "value1", "value2" } },
-                        { "header3", new string?[] { "value1", null } },
-                        { "header4", new string?[] { null } },
-                        { "header5", null },
-                        { "header-name", new [] { "value1" } },
-                        { "wrong-name-@#$%^)(*&^%", new [] { "value1" } },
-                    },
-                    new[]
-                    {
-                        ( "header1", "value1" ),
-                        ( "header1", "value2" ),
-                        ( "header1", "value3" ),
-                        ( "header2", "value1" ),
-                        ( "header2", "value2" ),
-                        ( "header3", "value1" ),
-                        ( "header4", string.Empty ),
-                        ( "header-name", "value1" ),
-                    },
-                    new[]
-                    {
-                        ( "header5", false ),
-                        ( "header6", false ),
-                        ( "wrong-name-@#$%^()*&^%", true ),
-                    }
+                    "correct",
+                    new KeyValuePairTestData(
+                        headers: new Dictionary<string, IEnumerable<string?>?>
+                        {
+                            { "header1", new [] { "value1", "value2", "value3" } },
+                            { "header2", new [] { "value1", "value2" } },
+                            { "header3", new string?[] { "value1", null } },
+                            { "header4", new string?[] { null } },
+                            { "header5", null },
+                            { "header-name", new [] { "value1" } },
+                            { "wrong-name-@#$%^)(*&^%", new [] { "value1" } },
+                        },
+                        result: new[]
+                        {
+                            ( "header1", "value1" ),
+                            ( "header1", "value2" ),
+                            ( "header1", "value3" ),
+                            ( "header2", "value1" ),
+                            ( "header2", "value2" ),
+                            ( "header3", "value1" ),
+                            ( "header4", string.Empty ),
+                            ( "header-name", "value1" ),
+                        })
                 );
 
                 yield return new TestCaseData(
-                    new Dictionary<string, IEnumerable<string?>?> { },
-                    new List<(string, string)>(),
-                    new[]
-                    {
-                        ( "header1", false ),
-                        ( "header2", false ),
-                    }
+                    "incorrect",
+                    new KeyValuePairTestData(
+                        headers: new Dictionary<string, IEnumerable<string?>?>
+                        {
+                            { "header5", null },
+                            { "wrong-name-@#$%^)(*&^%", new [] { "value1" } },
+                        },
+                        result: new List<(string, string)>())
+                );
+
+                yield return new TestCaseData(
+                    "empty",
+                    new KeyValuePairTestData(
+                        headers: new Dictionary<string, IEnumerable<string?>?>(),
+                        result: new List<(string, string)>())
                 );
             }
         }
 
-        public static IEnumerable AdditionalHeadersParams
+        public static IEnumerable AdditionalHeadersCases
         {
             get
             {
                 yield return new TestCaseData(
-                    new[]
-                    {
-                        ( "header1", "value1" ),
-                        ( "header1", "value2" ),
-                        ( "header1", "value3" ),
-                        ( "header2", "value1" ),
-                        ( "header2", "value2" ),
-                        ( "header3", "value1" ),
-                        ( "header4", string.Empty ),
-                    },
-                    new[]
-                    {
-                        ( "header1", "value4" ),
-                        ( "header2", "value3" ),
-                        ( "header2", "value4" ),
-                        ( "header4", "value1" ),
-                        ( "header5", "value1" ),
-                        ( "wrong-name-@#$%^()*&^%", "value1" ),
-                    },
-                    new[]
-                    {
-                        ( "header1", "value1" ),
-                        ( "header1", "value2" ),
-                        ( "header1", "value3" ),
-                        ( "header1", "value4" ),
-                        ( "header2", "value1" ),
-                        ( "header2", "value2" ),
-                        ( "header2", "value3" ),
-                        ( "header2", "value4" ),
-                        ( "header3", "value1" ),
-                        ( "header4", "value1" ),
-                        ( "header5", "value1" ),
-                    },
-                    new[]
-                    {
-                        ( "header6", false ),
-                        ( "wrong-name-@#$%^()*&^%", true ),
-                    }
+                    "correct",
+                    new AdditionalTupleTestData(
+                        headers: new (string?, string?)[]
+                        {
+                            ( "header1", "value1" ),
+                            ( "header1", "value2" ),
+                            ( "header1", "value3" ),
+                            ( "header2", "value1" ),
+                            ( "header2", "value2" ),
+                            ( "header3", "value1" ),
+                            ( "header4", string.Empty ),
+                        },
+                        additionalHeaders: new (string?, string?)[]
+                        {
+                            ( "header1", "value4" ),
+                            ( "header2", "value3" ),
+                            ( "header2", "value4" ),
+                            ( "header4", "value1" ),
+                            ( "header5", "value1" ),
+                            ( "wrong-name-@#$%^()*&^%", "value1" ),
+                        },
+                        result: new[]
+                        {
+                            ( "header1", "value1" ),
+                            ( "header1", "value2" ),
+                            ( "header1", "value3" ),
+                            ( "header1", "value4" ),
+                            ( "header2", "value1" ),
+                            ( "header2", "value2" ),
+                            ( "header2", "value3" ),
+                            ( "header2", "value4" ),
+                            ( "header3", "value1" ),
+                            ( "header4", "value1" ),
+                            ( "header5", "value1" ),
+                        })
+                );
+
+                yield return new TestCaseData(
+                    "incorrect",
+                    new AdditionalTupleTestData(
+                        headers: new (string?, string?)[]
+                        {
+                            ( null, null ),
+                            ( null, "value1" ),
+                            ( "wrong-name-@#$%^()*&^%", "value1" ),
+                        },
+                        additionalHeaders: new (string?, string?)[]
+                        {
+                            ( null, null ),
+                            ( null, "value1" ),
+                            ( "wrong-name-@#$%^()*&^%", "value1" ),
+                        },
+                        result: new List<(string, string)>())
+                );
+
+                yield return new TestCaseData(
+                    "empty",
+                    new AdditionalTupleTestData(
+                        headers: new List<(string?, string?)>(),
+                        additionalHeaders: new List<(string?, string?)>(),
+                        result: new List<(string, string)>())
                 );
             }
         }
