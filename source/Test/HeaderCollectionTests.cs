@@ -114,7 +114,7 @@ namespace Finebits.Network.RestClient.Test
 
 
         [TestCaseSource(typeof(Data.HeaderCollectionTestData), nameof(Data.HeaderCollectionTestData.AdditionalHeadersCases))]
-        public void AddHeadersTest(string _, Data.HeaderCollectionTestData.AdditionalTupleTestData data)
+        public void Add_TupleParam_Success(string _, Data.HeaderCollectionTestData.AdditionalTupleTestData data)
         {
             var headerCollection = new HeaderCollection(data.Headers)
             {
