@@ -16,12 +16,13 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
-using Moq;
-using Moq.Protected;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http.Json;
 using System.Web;
+
+using Moq;
+using Moq.Protected;
 
 namespace Finebits.Network.RestClient.Test.Mocks
 {

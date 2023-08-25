@@ -16,8 +16,9 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
-using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
+
+using NUnit.Framework;
 
 namespace Finebits.Network.RestClient.Test
 {
