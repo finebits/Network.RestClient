@@ -16,9 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+using Finebits.Network.RestClient.Utils;
 using NUnit.Framework;
 using System.Collections;
-using Finebits.Network.RestClient.Utils;
 
 namespace Finebits.Network.RestClient.Test.Data
 {

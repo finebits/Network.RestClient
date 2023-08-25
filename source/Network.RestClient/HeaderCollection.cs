@@ -16,13 +16,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+using Finebits.Network.RestClient.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
-using Finebits.Network.RestClient.Utils;
 
 [assembly: InternalsVisibleTo("Finebits.Network.RestClient.Test")]
 namespace Finebits.Network.RestClient

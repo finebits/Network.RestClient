@@ -40,17 +40,14 @@ namespace Finebits.Network.RestClient
             _baseUri = baseUri;
         }
 
-        protected Task SendAsync(Message message)
-        {
-            return SendAsync(message, CancellationToken.None);
-        }
-
-        protected async Task<HttpStatusCode> SendAsync(Message message, CancellationToken cancellationToken)
+        protected async Task<HttpStatusCode> SendAsync(Message message, CancellationToken cancellationToken = default)
         {
             if (message is null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             using (var request = await message.CreateRequestAsync(_baseUri, cancellationToken).ConfigureAwait(false))
             {
