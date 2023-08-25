@@ -34,10 +34,12 @@ namespace Finebits.Network.RestClient
         internal abstract Task CreateResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken);
     }
 
-    public abstract class CommonMessage<TResponse, TRequest> : Message
+    public abstract class CommonMessage<TResponse, TRequest> : Message, IDisposable
             where TResponse : Response
             where TRequest : Request
     {
+        private bool _disposedValue;
+
         public TRequest Request { get; private set; }
         public TResponse Response { get; private set; }
 
@@ -75,6 +77,37 @@ namespace Finebits.Network.RestClient
         internal virtual Uri BuildUri(Uri baseUri, Uri endpoint)
         {
             return (baseUri is null) ? endpoint : new Uri(baseUri, endpoint);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    DisposeObject(Request);
+                    Request = null;
+
+                    DisposeObject(Response);
+                    Response = null;
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        private static void DisposeObject(object obj)
+        {
+            if (obj is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
     }
 

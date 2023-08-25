@@ -1,11 +1,10 @@
-﻿using Finebits.Network.RestClient;
-using System.Net;
+﻿using System.Net;
 
-namespace Test.Data
+namespace Finebits.Network.RestClient.Test.Fakes
 {
-    internal class TestRestClient : Client
+    internal class FakeRestClient : Client
     {
-        public TestRestClient(HttpClient? httpClient, Uri? baseUri) : base(httpClient, baseUri)
+        public FakeRestClient(HttpClient? httpClient, Uri? baseUri) : base(httpClient, baseUri)
         { }
 
         public Task<HttpStatusCode> SendMessageAsync(Message? message, CancellationToken cancellationToken = default)

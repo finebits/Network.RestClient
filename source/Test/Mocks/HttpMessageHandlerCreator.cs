@@ -37,120 +37,38 @@ namespace Finebits.Network.RestClient.Test.Mocks
             public static readonly Uri HttpStatusCodeEndpoint = new("/http-status-code", UriKind.Relative);
             public const string HttpStatusCodeQueryParam = "code";
 
+            public static readonly Uri StringOkEndpoint = new("/string/ok", UriKind.Relative);
+            public static readonly Uri StringBadRequestEndpoint = new("/string/bad-request", UriKind.Relative);
+            public const string StringOkValue = "šomē-ütf8-valúē";
+            public const string StringBadRequestValue = "bad-rēqûēšt-ütf8-valūē";
+
+            public static readonly Uri JsonOkEndpoint = new("/json/ok", UriKind.Relative);
+            public static readonly Uri JsonBadRequestEndpoint = new("/json/bad-request", UriKind.Relative);
+            public const string JsonOkValue = "šomē-ütf8-valúē";
+            public const string JsonErrorValue = "ērror-ùtf8-valūē";
+            public const string JsonErrorDescriptionValue = "ērror-dēscrīptїon-ûtf8-valūē";
+
+            public static readonly Uri StreamOkEndpoint = new("/stream/ok", UriKind.Relative);
+            public static readonly Uri StreamBadRequestEndpoint = new("/stream/bad-request", UriKind.Relative);
+            public const string StreamOkValue = "šomē-ütf8-valúē-和平";
+            public const string StreamBadRequestValue = "bad-rēqûēšt-ütf8-valūē-和平";
+
+            public static readonly Uri ContentHeaderOkEndpoint = new("/content-header/ok", UriKind.Relative);
+            public static readonly Uri HeaderSuccessRequestEndpoint = new("/header/success", UriKind.Relative);
+            public static readonly Uri HeaderBadRequestEndpoint = new("/header/bad-request", UriKind.Relative);
+
+            public const string ContentHeaderKey = "content-header-key";
+            public const string ContentHeaderValue = "šomē-ütf8-valúē";
+
+            public const string HeaderKey = "header-key";
+            public const string HeaderOkValue = "šomē-ütf8-valúē";
+            public const string HeaderOkExtraValue = "šomē-ēxtra-ütf8-valúē";
+            public const string HeaderBadRequestValue = "bad-rēqûēšt-ütf8-valūē";
+
             public static Uri GetHttpStatusCodeEndpoint(HttpStatusCode code)
             {
                 return new($"{HttpStatusCodeEndpoint}?{HttpStatusCodeQueryParam}={code}", UriKind.Relative);
             }
-        }
-
-        public static Mock<HttpMessageHandler> CreateSuccess()
-        {
-            var mock = new Mock<HttpMessageHandler>();
-
-            mock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => new HttpResponseMessage()
-                {
-                    StatusCode = HttpStatusCode.NotFound
-                });
-
-            mock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(rm => rm.RequestUri != null && rm.RequestUri.AbsolutePath.EndsWith("token-uri") == true),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => new HttpResponseMessage()
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = JsonContent.Create(
-                        new
-                        {
-                            access_token = "fake-access-token",
-                            token_type = "Bearer",
-                            expires_in = 3600,
-                            refresh_token = "fake-refresh-token",
-                            scope = "email-fake-scope profile-fake-scope",
-                        }),
-                });
-
-            mock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(rm => rm.RequestUri != null
-                                               && rm.RequestUri.Host.Equals("google", StringComparison.Ordinal)
-                                               && rm.RequestUri.AbsolutePath.EndsWith("token-uri") == true),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => new HttpResponseMessage()
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = JsonContent.Create(
-                        new
-                        {
-                            access_token = "fake-access-token",
-                            token_type = "Bearer",
-                            expires_in = 3600,
-                            refresh_token = "fake-refresh-token",
-                            scope = "email-fake-scope profile-fake-scope",
-                            id_token = "fake-id-token",
-                        }),
-                });
-
-            mock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(rm => rm.RequestUri != null && rm.RequestUri.AbsolutePath.EndsWith("refresh-uri") == true),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => new HttpResponseMessage()
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = JsonContent.Create(
-                        new
-                        {
-                            access_token = "fake-new-access-token",
-                            token_type = "Bearer",
-                            expires_in = 3600,
-                            refresh_token = "fake-new-refresh-token",
-                            scope = "email-fake-scope profile-fake-scope",
-
-                        }),
-                });
-
-            mock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(rm => rm.RequestUri != null
-                                               && rm.RequestUri.Host.Equals("google", StringComparison.Ordinal)
-                                               && rm.RequestUri.AbsolutePath.EndsWith("refresh-uri") == true),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => new HttpResponseMessage()
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = JsonContent.Create(
-                        new
-                        {
-                            access_token = "fake-access-token",
-                            token_type = "Bearer",
-                            expires_in = 3600,
-                            refresh_token = "",
-                            scope = "email-fake-scope profile-fake-scope",
-                        }),
-                });
-
-            mock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(rm => rm.RequestUri != null && rm.RequestUri.AbsolutePath.EndsWith("revoke-uri") == true),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => new HttpResponseMessage()
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = JsonContent.Create(new { })
-                });
-
-            return mock;
         }
 
         public static Mock<HttpMessageHandler> CreateCancellationToken(CancellationTokenSource cts)
@@ -182,6 +100,124 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         {
                             StatusCode = statusCode,
                         };
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.StringOkEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(TestUri.StringOkValue)
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.StringBadRequestEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Content = new StringContent(TestUri.StringBadRequestValue)
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.JsonOkEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = JsonContent.Create(new
+                        {
+                            value = TestUri.JsonOkValue
+                        })
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.JsonBadRequestEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Content = JsonContent.Create(new
+                        {
+                            error = TestUri.JsonErrorValue,
+                            error_description = TestUri.JsonErrorDescriptionValue
+                        })
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.StreamOkEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(TestUri.StreamOkValue)))
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.StreamBadRequestEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(TestUri.StreamBadRequestValue)))
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.HeaderSuccessRequestEndpoint),
+                    valueFunction: (rm) =>
+                    {
+                        var response = new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.NoContent,
+                        };
+
+                        if (rm?.Method != HttpMethod.Head)
+                        {
+                            response.StatusCode = HttpStatusCode.OK;
+                            response.Content = new StringContent(TestUri.StringOkValue);
+                        }
+
+                        response.Headers.Add(TestUri.HeaderKey, TestUri.HeaderOkValue);
+                        response.Headers.Add(TestUri.HeaderKey, TestUri.HeaderOkExtraValue);
+
+                        return response;
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.HeaderBadRequestEndpoint),
+                    valueFunction: (_) =>
+                    {
+                        var response = new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.BadRequest,
+                            Content = new StringContent(TestUri.StringBadRequestValue),
+                        };
+
+                        response.Headers.Add(TestUri.HeaderKey, TestUri.HeaderBadRequestValue);
+
+                        return response;
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.ContentHeaderOkEndpoint),
+                    valueFunction: (_) =>
+                    {
+                        var response = new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.OK,
+                            Content = new StringContent(TestUri.StringBadRequestValue),
+                        };
+
+                        response.Content.Headers.Add(TestUri.ContentHeaderKey, TestUri.ContentHeaderValue);
+
+                        response.Headers.Add(TestUri.HeaderKey, TestUri.HeaderOkValue);
+                        response.Headers.Add(TestUri.HeaderKey, TestUri.HeaderOkExtraValue);
+
+                        return response;
                     }
                 )
                 .Configure

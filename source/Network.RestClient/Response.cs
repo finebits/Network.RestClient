@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -85,18 +86,45 @@ namespace Finebits.Network.RestClient
         }
     }
 
-    public class StreamResponse : Response
+    public class StreamResponse : Response, IDisposable
     {
-        public Stream Stream { get; set; }
+        private bool _disposedValue;
 
-        protected internal override Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        public Stream Stream { get; private set; }
+
+        public StreamResponse(Stream stream)
+        {
+            Stream = stream;
+        }
+
+        protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
             if (content != null)
             {
-                return content.CopyToAsync(Stream);
+                await content.CopyToAsync(Stream).ConfigureAwait(false);
+                Stream.Position = 0;
             }
+        }
 
-            return Task.CompletedTask;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    Stream.Dispose();
+                    Stream = null;
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
