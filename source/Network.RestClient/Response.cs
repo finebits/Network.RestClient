@@ -112,7 +112,7 @@ namespace Finebits.Network.RestClient
             {
                 if (disposing)
                 {
-                    Stream.Dispose();
+                    Stream?.Dispose();
                     Stream = null;
                 }
 
