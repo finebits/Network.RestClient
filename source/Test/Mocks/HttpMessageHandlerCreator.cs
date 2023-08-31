@@ -21,6 +21,8 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Web;
 
+using Finebits.Network.RestClient.Test.Fakes;
+
 using Moq;
 using Moq.Protected;
 
@@ -38,11 +40,13 @@ namespace Finebits.Network.RestClient.Test.Mocks
             public static readonly Uri HttpStatusCodeEndpoint = new("/http-status-code", UriKind.Relative);
             public const string HttpStatusCodeQueryParam = "code";
 
+            public static readonly Uri StringPayloadEndpoint = new("/string/payload", UriKind.Relative);
             public static readonly Uri StringOkEndpoint = new("/string/ok", UriKind.Relative);
             public static readonly Uri StringBadRequestEndpoint = new("/string/bad-request", UriKind.Relative);
             public const string StringOkValue = "šomē-ütf8-valúē";
             public const string StringBadRequestValue = "bad-rēqûēšt-ütf8-valūē";
 
+            public static readonly Uri JsonPayloadEndpoint = new("/json/payload", UriKind.Relative);
             public static readonly Uri JsonOkEndpoint = new("/json/ok", UriKind.Relative);
             public static readonly Uri JsonBadRequestEndpoint = new("/json/bad-request", UriKind.Relative);
             public const string JsonOkValue = "šomē-ütf8-valúē";
@@ -100,6 +104,55 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         return new HttpResponseMessage()
                         {
                             StatusCode = statusCode,
+                        };
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.StringPayloadEndpoint),
+                    valueFunction: (request) =>
+                    {
+                        if (request?.Content is StringContent content)
+                        {
+                            var text = content.ReadAsStringAsync().Result;
+                            var success = Enum.TryParse<HttpStatusCode>(text, out var code);
+
+                            return new HttpResponseMessage()
+                            {
+                                Content = new StringContent(text),
+                                StatusCode = success ? code : HttpStatusCode.BadRequest
+                            };
+                        }
+
+                        return new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.BadRequest
+                        };
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.JsonPayloadEndpoint),
+                    valueFunction: (request) =>
+                    {
+                        if (request?.Content is JsonContent content)
+                        {
+                            var payload = content.ReadFromJsonAsync<JsonPayloadMessage.RequestPayload>().Result;
+                            var success = Enum.TryParse<HttpStatusCode>(payload.Code, out var code);
+
+                            return new HttpResponseMessage()
+                            {
+                                Content = JsonContent.Create(new JsonPayloadMessage.ResponseContent
+                                {
+                                    Value = payload.Value
+                                }),
+                                StatusCode = success ? code : HttpStatusCode.BadRequest
+                            };
+                        }
+
+                        return new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.BadRequest
                         };
                     }
                 )

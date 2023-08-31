@@ -20,6 +20,21 @@ using System.Text.Json.Serialization;
 
 namespace Finebits.Network.RestClient.Test.Fakes
 {
+    internal abstract class FakeMessage<TResponse, TRequest> : CommonMessage<TResponse, TRequest>
+        where TResponse : Response
+        where TRequest : Request
+    {
+        public override Uri Endpoint { get; }
+
+        public override HttpMethod Method { get; }
+
+        public FakeMessage(Uri endpoint, HttpMethod? method = null)
+        {
+            Endpoint = endpoint;
+            Method = method ?? HttpMethod.Get;
+        }
+    }
+
     internal class FakeMessage<TResponse> : Message<TResponse>
         where TResponse : Response, new()
     {
@@ -61,17 +76,10 @@ namespace Finebits.Network.RestClient.Test.Fakes
         }
     }
 
-    internal class StreamMessage : CommonMessage<StreamResponse, EmptyRequest>
+    internal class StreamMessage : FakeMessage<StreamResponse, EmptyRequest>
     {
-        public override Uri Endpoint { get; }
-
-        public override HttpMethod Method { get; }
-
-        public StreamMessage(Uri endpoint, HttpMethod? method = null)
-        {
-            Endpoint = endpoint;
-            Method = method ?? HttpMethod.Get;
-        }
+        public StreamMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
+        { }
 
         protected override EmptyRequest CreateRequest()
         {
@@ -88,5 +96,62 @@ namespace Finebits.Network.RestClient.Test.Fakes
     {
         public HeaderMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
         { }
+    }
+
+    internal class StringPayloadMessage : FakeMessage<StringResponse, StringRequest>
+    {
+        public required StringRequest StringRequest { get; init; }
+
+        public StringPayloadMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
+        { }
+
+        protected override StringRequest CreateRequest()
+        {
+            return StringRequest;
+        }
+
+        protected override StringResponse CreateResponse()
+        {
+            return new StringResponse();
+        }
+    }
+
+    internal class JsonPayloadMessage : FakeMessage<JsonResponse<JsonPayloadMessage.ResponseContent>, JsonRequest<JsonPayloadMessage.RequestPayload>>
+    {
+        public required RequestPayload Payload { get; init; }
+
+        public JsonPayloadMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
+        { }
+
+        protected override JsonRequest<RequestPayload> CreateRequest()
+        {
+            return new JsonRequest<RequestPayload>()
+            {
+                Payload = Payload,
+            };
+        }
+
+        protected override JsonResponse<ResponseContent> CreateResponse()
+        {
+            return new JsonResponse<ResponseContent>();
+        }
+
+        public struct RequestPayload
+        {
+            [JsonInclude]
+            [JsonPropertyName("code")]
+            public string Code { get; set; }
+
+            [JsonInclude]
+            [JsonPropertyName("value")]
+            public string Value { get; set; }
+        }
+
+        public struct ResponseContent
+        {
+            [JsonInclude]
+            [JsonPropertyName("value")]
+            public string Value { get; set; }
+        }
     }
 }

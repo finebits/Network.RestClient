@@ -18,6 +18,7 @@
 
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,10 +41,22 @@ namespace Finebits.Network.RestClient
     public class StringRequest : Request
     {
         public string Payload { get; set; }
+        public Encoding Encoding { get; set; }
+        public string MediaType { get; set; }
 
         protected internal override Task<HttpContent> CreateContentAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult<HttpContent>(new StringContent(Payload));
+            if (Encoding is null)
+            {
+                return Task.FromResult<HttpContent>(new StringContent(Payload));
+            }
+
+            if (MediaType is null)
+            {
+                return Task.FromResult<HttpContent>(new StringContent(Payload, Encoding));
+            }
+
+            return Task.FromResult<HttpContent>(new StringContent(Payload, Encoding, MediaType));
         }
     }
 

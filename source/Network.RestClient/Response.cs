@@ -45,9 +45,9 @@ namespace Finebits.Network.RestClient
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is StringContent stringContent)
             {
-                Content = await content.ReadAsStringAsync().ConfigureAwait(false);
+                Content = await stringContent.ReadAsStringAsync().ConfigureAwait(false);
             }
         }
     }
@@ -59,9 +59,9 @@ namespace Finebits.Network.RestClient
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is JsonContent jsonContent)
             {
-                Content = await content.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
+                Content = await jsonContent.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
             }
         }
     }
@@ -99,9 +99,9 @@ namespace Finebits.Network.RestClient
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is StreamContent streamContent)
             {
-                await content.CopyToAsync(Stream).ConfigureAwait(false);
+                await streamContent.CopyToAsync(Stream).ConfigureAwait(false);
                 Stream.Position = 0;
             }
         }
@@ -119,7 +119,6 @@ namespace Finebits.Network.RestClient
                 _disposedValue = true;
             }
         }
-
 
         public void Dispose()
         {
