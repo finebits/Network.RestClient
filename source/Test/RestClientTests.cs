@@ -23,6 +23,8 @@ using Finebits.Network.RestClient.Test.Fakes;
 
 using NUnit.Framework;
 
+using UriSet = Finebits.Network.RestClient.Test.Data.MessageTestData.UriSet;
+
 namespace Finebits.Network.RestClient.Test
 {
     [SuppressMessage("Performance", "CA1812: Avoid uninstantiated internal classes", Justification = "Class is instantiated via NUnit Framework")]
@@ -50,7 +52,7 @@ namespace Finebits.Network.RestClient.Test
         public void Send_NullParam_Exception()
         {
             using HttpClient httpClient = new();
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
             {
                 var exception = Assert.ThrowsAsync<ArgumentNullException>(async () => await client.SendMessageAsync(null).ConfigureAwait(false));
@@ -72,9 +74,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_UnsuccessfulStatusCode_Exception(HttpStatusCode code)
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using FakeMessage<EmptyResponse> message = new(Mocks.HttpMessageHandlerCreator.TestUri.GetHttpStatusCodeEndpoint(code));
+            using FakeMessage<EmptyResponse> message = new(UriSet.GetHttpStatusCodeEndpoint(code));
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -90,9 +92,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_SuccessStatusCode_Success(HttpStatusCode code)
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using FakeMessage<EmptyResponse> message = new(Mocks.HttpMessageHandlerCreator.TestUri.GetHttpStatusCodeEndpoint(code));
+            using FakeMessage<EmptyResponse> message = new(UriSet.GetHttpStatusCodeEndpoint(code));
             HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest;
 
             Assert.DoesNotThrowAsync(async () => httpStatusCode = await client.SendMessageAsync(message).ConfigureAwait(false));
@@ -109,9 +111,9 @@ namespace Finebits.Network.RestClient.Test
         {
             using CancellationTokenSource cts = new();
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.CreateCancellationToken(cts).Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using FakeMessage<EmptyResponse> message = new(Mocks.HttpMessageHandlerCreator.TestUri.OkEndpoint);
+            using FakeMessage<EmptyResponse> message = new(UriSet.OkEndpoint);
 
             var exception = Assert.CatchAsync<OperationCanceledException>(async () => await client.SendMessageAsync(message, cts.Token).ConfigureAwait(false));
             Assert.That(exception, Is.Not.Null);
@@ -122,9 +124,9 @@ namespace Finebits.Network.RestClient.Test
         {
             using CancellationTokenSource cts = new();
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.CreateCancellationToken(cts).Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using FakeMessage<EmptyResponse> message = new(Mocks.HttpMessageHandlerCreator.TestUri.OkEndpoint);
+            using FakeMessage<EmptyResponse> message = new(UriSet.OkEndpoint);
 
             cts.Cancel();
 
@@ -138,7 +140,7 @@ namespace Finebits.Network.RestClient.Test
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
             FakeRestClient client = new(httpClient, null);
 
-            using FakeMessage<EmptyResponse> message = new(new Uri(Mocks.HttpMessageHandlerCreator.TestUri.Host, Mocks.HttpMessageHandlerCreator.TestUri.OkEndpoint));
+            using FakeMessage<EmptyResponse> message = new(new Uri(UriSet.Host, UriSet.OkEndpoint));
 
             var httpStatusCode = HttpStatusCode.BadRequest;
             Assert.DoesNotThrowAsync(async () => httpStatusCode = await client.SendMessageAsync(message).ConfigureAwait(false));

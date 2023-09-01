@@ -7,9 +7,10 @@
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>Finebits.Network.RestClient.Test</AssemblyName>
-
     <AnalysisLevel>6.0-all</AnalysisLevel>
+
+    <AssemblyName>Finebits.Network.RestClient.Test</AssemblyName>
+    <RootNamespace>Finebits.Network.RestClient.Test</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

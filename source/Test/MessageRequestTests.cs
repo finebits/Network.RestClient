@@ -25,6 +25,9 @@ using Finebits.Network.RestClient.Test.Fakes;
 
 using NUnit.Framework;
 
+using DataSet = Finebits.Network.RestClient.Test.Data.MessageTestData.DataSet;
+using UriSet = Finebits.Network.RestClient.Test.Data.MessageTestData.UriSet;
+
 namespace Finebits.Network.RestClient.Test
 {
     [SuppressMessage("Performance", "CA1812: Avoid uninstantiated internal classes", Justification = "Class is instantiated via NUnit Framework")]
@@ -34,9 +37,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_StringPayload_BadResponse_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringPayloadMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.StringPayloadEndpoint)
+            using StringPayloadMessage message = new(UriSet.StringPayloadEndpoint)
             {
                 StringRequest = new StringRequest
                 {
@@ -58,15 +61,14 @@ namespace Finebits.Network.RestClient.Test
         [Test]
         public void Send_CustomStringPayload_BadResponse_Exception()
         {
-            const string customPayload = "";
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringPayloadMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.StringPayloadEndpoint)
+            using StringPayloadMessage message = new(UriSet.StringPayloadEndpoint)
             {
                 StringRequest = new StringRequest
                 {
-                    Payload = customPayload,
+                    Payload = DataSet.EmptyValue,
                     Encoding = Encoding.UTF8,
                     MediaType = MediaTypeNames.Text.Plain
                 }
@@ -78,7 +80,7 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content, Is.EqualTo(customPayload));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.EmptyValue));
             });
         }
 
@@ -86,9 +88,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_StringPayload_OkResponse_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringPayloadMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.StringPayloadEndpoint)
+            using StringPayloadMessage message = new(UriSet.StringPayloadEndpoint)
             {
                 StringRequest = new StringRequest
                 {
@@ -109,16 +111,15 @@ namespace Finebits.Network.RestClient.Test
         [Test]
         public void Send_JsonPayload_BadResponse_Exception()
         {
-            const string customValue = "";
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using JsonPayloadMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.JsonPayloadEndpoint)
+            using JsonPayloadMessage message = new(UriSet.JsonPayloadEndpoint)
             {
                 Payload = new JsonPayloadMessage.RequestPayload
                 {
                     Code = nameof(HttpStatusCode.BadRequest),
-                    Value = customValue
+                    Value = DataSet.EmptyValue
                 }
             };
 
@@ -128,23 +129,22 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content.Value, Is.EqualTo(customValue));
+                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.EmptyValue));
             });
         }
 
         [Test]
         public void Send_JsonContent_OkResponse_Success()
         {
-            const string customValue = "CustomValue";
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using JsonPayloadMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.JsonPayloadEndpoint)
+            using JsonPayloadMessage message = new(UriSet.JsonPayloadEndpoint)
             {
                 Payload = new JsonPayloadMessage.RequestPayload
                 {
                     Code = nameof(HttpStatusCode.OK),
-                    Value = customValue
+                    Value = DataSet.CustomValue
                 }
             };
 
@@ -153,24 +153,22 @@ namespace Finebits.Network.RestClient.Test
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Content.Value, Is.EqualTo(customValue));
+                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.CustomValue));
             });
         }
 
         [Test]
         public void Send_CustomHeader_OkResponse_Success()
         {
-            const string customHeaderValue1 = "value1";
-            const string customHeaderValue2 = "value2";
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using HeaderMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.CustomHeaderEndpoint)
+            using HeaderMessage message = new(UriSet.CustomHeaderEndpoint)
             {
                 Headers = new HeaderCollection(new (string, string)[]
                 {
-                    (Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, customHeaderValue1),
-                    (Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, customHeaderValue2),
+                    (DataSet.HeaderKey, DataSet.CustomValue),
+                    (DataSet.HeaderKey, DataSet.ExtraCustomValue),
                 })
             };
 
@@ -179,7 +177,7 @@ namespace Finebits.Network.RestClient.Test
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, new[] { customHeaderValue1, customHeaderValue2 })));
+                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.CustomValue, DataSet.ExtraCustomValue })));
             });
         }
     }

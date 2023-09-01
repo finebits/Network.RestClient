@@ -23,6 +23,9 @@ using Finebits.Network.RestClient.Test.Fakes;
 
 using NUnit.Framework;
 
+using DataSet = Finebits.Network.RestClient.Test.Data.MessageTestData.DataSet;
+using UriSet = Finebits.Network.RestClient.Test.Data.MessageTestData.UriSet;
+
 namespace Finebits.Network.RestClient.Test
 {
     [SuppressMessage("Performance", "CA1812: Avoid uninstantiated internal classes", Justification = "Class is instantiated via NUnit Framework")]
@@ -55,9 +58,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_BadResponse_StringContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.StringBadRequestEndpoint);
+            using StringMessage message = new(UriSet.StringBadRequestEndpoint);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -65,7 +68,7 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content, Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.StringBadRequestValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringBadRequestValue));
             });
         }
 
@@ -73,9 +76,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_BadResponse_EmptyStringContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.BadRequestEndpoint);
+            using StringMessage message = new(UriSet.BadRequestEndpoint);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -91,16 +94,16 @@ namespace Finebits.Network.RestClient.Test
         public void Send_OkResponse_StringContent_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.StringOkEndpoint);
+            using StringMessage message = new(UriSet.StringOkEndpoint);
 
             Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Content, Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.StringOkValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringOkValue));
             });
         }
 
@@ -108,9 +111,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_BadResponse_JsonContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using JsonMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.JsonBadRequestEndpoint);
+            using JsonMessage message = new(UriSet.JsonBadRequestEndpoint);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -118,8 +121,8 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content.Error, Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.JsonErrorValue));
-                Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.JsonErrorDescriptionValue));
+                Assert.That(message.Response.Content.Error, Is.EqualTo(DataSet.JsonErrorValue));
+                Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(DataSet.JsonErrorDescriptionValue));
                 Assert.That(message.Response.Content.Value, Is.EqualTo(default));
             });
         }
@@ -128,9 +131,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_BadResponse_EmptyJsonContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using JsonMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.BadRequestEndpoint);
+            using JsonMessage message = new(UriSet.BadRequestEndpoint);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -146,9 +149,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_OkResponse_JsonContent_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using JsonMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.JsonOkEndpoint);
+            using JsonMessage message = new(UriSet.JsonOkEndpoint);
 
             Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -157,7 +160,7 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
                 Assert.That(message.Response.Content.Error, Is.EqualTo(default));
                 Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(default));
-                Assert.That(message.Response.Content.Value, Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.JsonOkValue));
+                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.JsonOkValue));
             });
         }
 
@@ -165,9 +168,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_BadResponse_StreamContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StreamMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.StreamBadRequestEndpoint);
+            using StreamMessage message = new(UriSet.StreamBadRequestEndpoint);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -178,7 +181,7 @@ namespace Finebits.Network.RestClient.Test
 
                 Assert.That(message.Response.Stream, Is.Not.Null);
                 StreamReader reader = new(message.Response.Stream);
-                Assert.That(reader.ReadToEnd(), Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.StreamBadRequestValue));
+                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.StreamBadRequestValue));
             });
         }
 
@@ -186,9 +189,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_BadResponse_EmptyStreamContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StreamMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.BadRequestEndpoint);
+            using StreamMessage message = new(UriSet.BadRequestEndpoint);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -206,9 +209,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_OkResponse_StreamContent_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StreamMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.StreamOkEndpoint);
+            using StreamMessage message = new(UriSet.StreamOkEndpoint);
 
             Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -218,7 +221,7 @@ namespace Finebits.Network.RestClient.Test
 
                 Assert.That(message.Response.Stream, Is.Not.Null);
                 StreamReader reader = new(message.Response.Stream);
-                Assert.That(reader.ReadToEnd(), Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.StreamOkValue));
+                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.StreamOkValue));
             });
         }
 
@@ -226,9 +229,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_MethodGet_BadResponse_Headers_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.HeaderBadRequestEndpoint, HttpMethod.Get);
+            using StringMessage message = new(UriSet.HeaderBadRequestEndpoint, HttpMethod.Get);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -237,8 +240,8 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
 
-                Assert.That(message.Response.Content, Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.StringBadRequestValue));
-                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, new[] { Mocks.HttpMessageHandlerCreator.TestUri.HeaderBadRequestValue })));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringBadRequestValue));
+                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderBadRequestValue })));
             });
         }
 
@@ -246,9 +249,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_MethodGet_OkResponse_Headers_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.HeaderSuccessRequestEndpoint, HttpMethod.Get);
+            using StringMessage message = new(UriSet.HeaderSuccessRequestEndpoint, HttpMethod.Get);
 
             Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -256,8 +259,10 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
 
-                Assert.That(message.Response.Content, Is.EqualTo(Mocks.HttpMessageHandlerCreator.TestUri.StringOkValue));
-                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, new[] { Mocks.HttpMessageHandlerCreator.TestUri.HeaderOkValue, Mocks.HttpMessageHandlerCreator.TestUri.HeaderOkExtraValue })));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringOkValue));
+                Assert.That(message.Response.Headers, Does.Contain(
+                    new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderOkValue, DataSet.HeaderOkExtraValue }))
+                    );
             });
         }
 
@@ -265,9 +270,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_MethodHead_NoContent_Headers_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using StringMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.HeaderSuccessRequestEndpoint, HttpMethod.Head);
+            using StringMessage message = new(UriSet.HeaderSuccessRequestEndpoint, HttpMethod.Head);
 
             Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -276,7 +281,9 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.NoContent));
 
                 Assert.That(message.Response.Content, Is.EqualTo(default(string)));
-                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, new[] { Mocks.HttpMessageHandlerCreator.TestUri.HeaderOkValue, Mocks.HttpMessageHandlerCreator.TestUri.HeaderOkExtraValue })));
+                Assert.That(message.Response.Headers, Does.Contain(
+                    new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderOkValue, DataSet.HeaderOkExtraValue }))
+                    );
             });
         }
 
@@ -284,9 +291,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_OkResponse_HeaderContent_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using HeaderMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.ContentHeaderOkEndpoint);
+            using HeaderMessage message = new(UriSet.ContentHeaderOkEndpoint);
 
             Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
@@ -294,8 +301,8 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
 
-                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, new[] { Mocks.HttpMessageHandlerCreator.TestUri.HeaderOkValue, Mocks.HttpMessageHandlerCreator.TestUri.HeaderOkExtraValue })));
-                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(Mocks.HttpMessageHandlerCreator.TestUri.ContentHeaderKey, new[] { Mocks.HttpMessageHandlerCreator.TestUri.ContentHeaderValue })));
+                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderOkValue, DataSet.HeaderOkExtraValue })));
+                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.ContentHeaderKey, new[] { DataSet.ContentHeaderValue })));
             });
         }
 
@@ -303,9 +310,9 @@ namespace Finebits.Network.RestClient.Test
         public void Send_BadResponse_HeaderContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
-            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+            FakeRestClient client = new(httpClient, UriSet.Host);
 
-            using HeaderMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.BadRequestEndpoint);
+            using HeaderMessage message = new(UriSet.BadRequestEndpoint);
 
             var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
 
