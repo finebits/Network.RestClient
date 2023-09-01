@@ -76,26 +76,31 @@ namespace Finebits.Network.RestClient.Test.Fakes
         }
     }
 
-    internal class StreamMessage : FakeMessage<StreamResponse, EmptyRequest>
+    internal class StreamMessage : FakeMessage<StreamResponse>
     {
         public StreamMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
+        { }
+    }
+
+    internal class HeaderMessage : FakeMessage<HeadResponse, EmptyRequest>
+    {
+        public HeaderCollection? Headers { get; set; }
+
+        public HeaderMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
         { }
 
         protected override EmptyRequest CreateRequest()
         {
-            return new EmptyRequest();
+            return new EmptyRequest()
+            {
+                Headers = Headers
+            };
         }
 
-        protected override StreamResponse CreateResponse()
+        protected override HeadResponse CreateResponse()
         {
-            return new StreamResponse(new MemoryStream());
+            return new HeadResponse();
         }
-    }
-
-    internal class HeaderMessage : FakeMessage<HeadResponse>
-    {
-        public HeaderMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
-        { }
     }
 
     internal class StringPayloadMessage : FakeMessage<StringResponse, StringRequest>
@@ -128,29 +133,36 @@ namespace Finebits.Network.RestClient.Test.Fakes
             return new JsonRequest<RequestPayload>()
             {
                 Payload = Payload,
+                Options = new System.Text.Json.JsonSerializerOptions()
+                {
+                    PropertyNameCaseInsensitive = true,
+                }
             };
         }
 
         protected override JsonResponse<ResponseContent> CreateResponse()
         {
-            return new JsonResponse<ResponseContent>();
+            return new JsonResponse<ResponseContent>()
+            {
+                Options = new System.Text.Json.JsonSerializerOptions()
+                {
+                    PropertyNameCaseInsensitive = true,
+                }
+            };
         }
 
         public struct RequestPayload
         {
             [JsonInclude]
-            [JsonPropertyName("code")]
             public string Code { get; set; }
 
             [JsonInclude]
-            [JsonPropertyName("value")]
             public string Value { get; set; }
         }
 
         public struct ResponseContent
         {
             [JsonInclude]
-            [JsonPropertyName("value")]
             public string Value { get; set; }
         }
     }

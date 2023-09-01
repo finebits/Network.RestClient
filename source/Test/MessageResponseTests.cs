@@ -29,6 +29,29 @@ namespace Finebits.Network.RestClient.Test
     internal class MessageResponseTests
     {
         [Test]
+        public void Construct_StreamResponse_Success()
+        {
+            Assert.DoesNotThrow(() => { using var streamResponse = new StreamResponse(); });
+            Assert.DoesNotThrow(() => { using var streamResponse = new StreamResponse(new MemoryStream()); });
+        }
+
+        [Test]
+        public void Construct_StreamResponse_NullParam_Exception()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => { using var streamResponse = new StreamResponse(null); });
+
+            Assert.That(exception, Is.Not.Null);
+            Assert.That(exception.ParamName, Is.EqualTo("stream"));
+        }
+
+        [Test]
+        public void Dispose_StreamResponse_Success()
+        {
+            Assert.DoesNotThrow(() => { using var streamResponse = new StreamResponse(); streamResponse.Stream.Dispose(); });
+            Assert.DoesNotThrow(() => { using var streamResponse = new StreamResponse(); streamResponse.Dispose(); });
+        }
+
+        [Test]
         public void Send_BadResponse_StringContent_Exception()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);

@@ -131,5 +131,23 @@ namespace Finebits.Network.RestClient.Test
             var exception = Assert.CatchAsync<OperationCanceledException>(async () => await client.SendMessageAsync(message, cts.Token).ConfigureAwait(false));
             Assert.That(exception, Is.Not.Null);
         }
+
+        [Test]
+        public void Send_NullBaseUri_Success()
+        {
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, null);
+
+            using FakeMessage<EmptyResponse> message = new(new Uri(Mocks.HttpMessageHandlerCreator.TestUri.Host, Mocks.HttpMessageHandlerCreator.TestUri.OkEndpoint));
+
+            var httpStatusCode = HttpStatusCode.BadRequest;
+            Assert.DoesNotThrowAsync(async () => httpStatusCode = await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(httpStatusCode, Is.EqualTo(HttpStatusCode.OK));
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+            });
+        }
     }
 }

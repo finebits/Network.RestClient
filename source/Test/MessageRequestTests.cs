@@ -156,5 +156,31 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(message.Response.Content.Value, Is.EqualTo(customValue));
             });
         }
+
+        [Test]
+        public void Send_CustomHeader_OkResponse_Success()
+        {
+            const string customHeaderValue1 = "value1";
+            const string customHeaderValue2 = "value2";
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, Mocks.HttpMessageHandlerCreator.TestUri.Host);
+
+            using HeaderMessage message = new(Mocks.HttpMessageHandlerCreator.TestUri.CustomHeaderEndpoint)
+            {
+                Headers = new HeaderCollection(new (string, string)[]
+                {
+                    (Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, customHeaderValue1),
+                    (Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, customHeaderValue2),
+                })
+            };
+
+            Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(Mocks.HttpMessageHandlerCreator.TestUri.HeaderKey, new[] { customHeaderValue1, customHeaderValue2 })));
+            });
+        }
     }
 }

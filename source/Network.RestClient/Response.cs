@@ -92,8 +92,18 @@ namespace Finebits.Network.RestClient
 
         public Stream Stream { get; private set; }
 
+        public StreamResponse()
+        {
+            Stream = new MemoryStream();
+        }
+
         public StreamResponse(Stream stream)
         {
+            if (stream is null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
             Stream = stream;
         }
 

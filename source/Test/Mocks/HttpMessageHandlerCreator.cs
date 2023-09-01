@@ -61,6 +61,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
             public static readonly Uri ContentHeaderOkEndpoint = new("/content-header/ok", UriKind.Relative);
             public static readonly Uri HeaderSuccessRequestEndpoint = new("/header/success", UriKind.Relative);
             public static readonly Uri HeaderBadRequestEndpoint = new("/header/bad-request", UriKind.Relative);
+            public static readonly Uri CustomHeaderEndpoint = new("/header/custom", UriKind.Relative);
 
             public const string ContentHeaderKey = "content-header-key";
             public const string ContentHeaderValue = "šomē-ütf8-valúē";
@@ -154,6 +155,25 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         {
                             StatusCode = HttpStatusCode.BadRequest
                         };
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(TestUri.Host, TestUri.CustomHeaderEndpoint),
+                    valueFunction: (request) =>
+                    {
+                        var response = new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.BadRequest,
+                        };
+
+                        if (request is not null && request?.Headers.TryGetValues(TestUri.HeaderKey, out var values) == true && values is not null)
+                        {
+                            response.Headers.Add(TestUri.HeaderKey, values);
+                            response.StatusCode = HttpStatusCode.OK;
+                        }
+
+                        return response;
                     }
                 )
                 .Configure
