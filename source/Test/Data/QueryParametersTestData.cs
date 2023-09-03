@@ -48,23 +48,49 @@ namespace Finebits.Network.RestClient.Test.Data
             }
         }
 
-        public static IEnumerable QueryTupleParams
+        public struct TupleTestData
         {
-            get
+            public IEnumerable<(string? key, string? value)> TupleQuery { get; }
+
+            public TupleTestData(IEnumerable<(string? key, string? value)> query)
             {
-                yield return new TestCaseData(new[] { ("param1", "value1"), ("param2", "value2") }, "param1=value1&param2=value2");
-                yield return new TestCaseData(new[] { ("param2", "value2"), ("param1", "value1") }, "param2=value2&param1=value1");
-                yield return new TestCaseData(new (string, string?)[] { ("param1", null), ("param2", string.Empty), ("param3", " ") }, "param2=&param3=+");
-                yield return new TestCaseData(new[] { ("param", "foo bar") }, "param=foo+bar");
-                yield return new TestCaseData(new[] { ("param", "!_.0-9A-Za-z(*)") }, "param=!_.0-9A-Za-z(*)");
-                yield return new TestCaseData(new[] { ("param", """'@#$%^=":;<>,?/\|+&""") }, "param=%27%40%23%24%25%5e%3d%22%3a%3b%3c%3e%2c%3f%2f%5c%7c%2b%26");
-                yield return new TestCaseData(new (string, string?)[] { ("param", null) }, string.Empty);
-                yield return new TestCaseData(new (string?, string?)[] { (null, null) }, string.Empty);
-                yield return new TestCaseData(new (string?, string?)[] { (null, "value"), (" ", "value"), (string.Empty, "value") }, string.Empty);
+                TupleQuery = query;
             }
         }
 
-        public static IEnumerable QueryPairParams
+        public static IEnumerable QueryStringCases
+        {
+            get
+            {
+                yield return new TestCaseData("", "");
+                yield return new TestCaseData("param1=value1&param2=value2", "param1=value1&param2=value2");
+                yield return new TestCaseData("param2=value2&param1=value1", "param2=value2&param1=value1");
+                yield return new TestCaseData("param1=&param2=", "param1=&param2=");
+                yield return new TestCaseData("param1=foo bar", "param1=foo+bar");
+                yield return new TestCaseData("param1=!_.0-9A-Za-z(*)", "param1=!_.0-9A-Za-z(*)");
+                yield return new TestCaseData("""param1=@#$%^=":;<>,?/\|""", "param1=%40%23%24%25%5e%3d%22%3a%3b%3c%3e%2c%3f%2f%5c%7c");
+                yield return new TestCaseData("param1=%2b&param2=%26&param3=%&param4= &param5=%20", "param1=%2b&param2=%26&param3=%25&param4=+&param5=+");
+                yield return new TestCaseData("param1=%40%23%24%25%5e%3d%22%3a%3b%3c%3e%2c%3f%2f%5c%7c", "param1=%40%23%24%25%5e%3d%22%3a%3b%3c%3e%2c%3f%2f%5c%7c");
+            }
+        }
+
+        public static IEnumerable QueryTupleCases
+        {
+            get
+            {
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { ("param1", "value1"), ("param2", "value2") }), "param1=value1&param2=value2");
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { ("param2", "value2"), ("param1", "value1") }), "param2=value2&param1=value1");
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { ("param1", null), ("param2", string.Empty), ("param3", " ") }), "param2=&param3=+");
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { ("param", "foo bar") }), "param=foo+bar");
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { ("param", "!_.0-9A-Za-z(*)") }), "param=!_.0-9A-Za-z(*)");
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { ("param", """'@#$%^=":;<>,?/\|+&""") }), "param=%27%40%23%24%25%5e%3d%22%3a%3b%3c%3e%2c%3f%2f%5c%7c%2b%26");
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { ("param", null) }), string.Empty);
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { (null, null) }), string.Empty);
+                yield return new TestCaseData(new TupleTestData(new (string?, string?)[] { (null, "value"), (" ", "value"), (string.Empty, "value") }), string.Empty);
+            }
+        }
+
+        public static IEnumerable QueryPairCases
         {
             get
             {
@@ -77,7 +103,7 @@ namespace Finebits.Network.RestClient.Test.Data
             }
         }
 
-        public static IEnumerable QueryStructParams
+        public static IEnumerable QueryStructCases
         {
             get
             {
@@ -101,6 +127,15 @@ namespace Finebits.Network.RestClient.Test.Data
                     WrongNamedParam = 0,
                     ConvertParam = int.MaxValue,
                 }, $"WellNamedParam=0&{nameof(AttributeTestData.ConvertParam)}={AttributeTestData.Convert(int.MaxValue)}");
+
+                yield return new TestCaseData(new
+                {
+                    ZeroValue = 0,
+                    MaxValue = int.MaxValue,
+                    MinValue = int.MinValue,
+                    EmptyValue = string.Empty,
+                    StringValue = "string",
+                }, $"ZeroValue=0&MaxValue={int.MaxValue}&MinValue={int.MinValue}&EmptyValue={string.Empty}&StringValue=string");
             }
         }
     }

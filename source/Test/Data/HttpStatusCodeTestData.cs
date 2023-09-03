@@ -16,46 +16,41 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
-using System;
+using System.Collections;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Finebits.Network.RestClient
+using NUnit.Framework;
+
+namespace Finebits.Network.RestClient.Test.Data
 {
-    public class Client
+    internal partial class HttpStatusCodeTestData
     {
-        private readonly HttpClient _httpClient;
-        private readonly Uri _baseUri;
+        public static IEnumerable SuccessHttpStatusCodeCases => CreateTestCaseDataCollection(GetSuccessHttpStatusCode());
 
-        public Client(HttpClient httpClient, Uri baseUri)
+        public static IEnumerable ErrorHttpStatusCodeCases => CreateTestCaseDataCollection(GetAllHttpStatusCode().Except(GetSuccessHttpStatusCode()));
+
+        private static IEnumerable<HttpStatusCode> GetAllHttpStatusCode()
         {
-            if (httpClient is null)
-            {
-                throw new ArgumentNullException(nameof(httpClient));
-            }
-
-            _httpClient = httpClient;
-            _baseUri = baseUri;
+            return Enum.GetValues<HttpStatusCode>();
         }
 
-        protected async Task<HttpStatusCode> SendAsync(Message message, CancellationToken cancellationToken = default)
+        private static IEnumerable<HttpStatusCode> GetSuccessHttpStatusCode()
         {
-            if (message is null)
+            foreach (var code in Enum.GetValues<HttpStatusCode>())
             {
-                throw new ArgumentNullException(nameof(message));
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using (var request = await message.CreateRequestAsync(_baseUri, cancellationToken).ConfigureAwait(false))
-            {
-                using (var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false))
+                var value = (int)code;
+                if (200 <= value && value < 300)
                 {
-                    await message.CreateResponseAsync(response, cancellationToken).ConfigureAwait(false);
-                    return response.StatusCode;
+                    yield return code;
                 }
+            }
+        }
+
+        private static IEnumerable CreateTestCaseDataCollection(IEnumerable<HttpStatusCode> collection)
+        {
+            foreach (var item in collection)
+            {
+                yield return new TestCaseData(item);
             }
         }
     }

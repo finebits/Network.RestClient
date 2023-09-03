@@ -16,6 +16,7 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -44,9 +45,9 @@ namespace Finebits.Network.RestClient
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is StringContent stringContent)
             {
-                Content = await content.ReadAsStringAsync().ConfigureAwait(false);
+                Content = await stringContent.ReadAsStringAsync().ConfigureAwait(false);
             }
         }
     }
@@ -58,9 +59,9 @@ namespace Finebits.Network.RestClient
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is JsonContent jsonContent)
             {
-                Content = await content.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
+                Content = await jsonContent.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
             }
         }
     }
@@ -85,18 +86,54 @@ namespace Finebits.Network.RestClient
         }
     }
 
-    public class StreamResponse : Response
+    public class StreamResponse : Response, IDisposable
     {
-        public Stream Stream { get; set; }
+        private bool _disposedValue;
 
-        protected internal override Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        public Stream Stream { get; private set; }
+
+        public StreamResponse()
         {
-            if (content != null)
+            Stream = new MemoryStream();
+        }
+
+        public StreamResponse(Stream stream)
+        {
+            if (stream is null)
             {
-                return content.CopyToAsync(Stream);
+                throw new ArgumentNullException(nameof(stream));
             }
 
-            return Task.CompletedTask;
+            Stream = stream;
+        }
+
+        protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        {
+            if (content is StreamContent streamContent)
+            {
+                await streamContent.CopyToAsync(Stream).ConfigureAwait(false);
+                Stream.Position = 0;
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    Stream?.Dispose();
+                    Stream = null;
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

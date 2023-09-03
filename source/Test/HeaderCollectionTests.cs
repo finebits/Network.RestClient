@@ -16,64 +16,17 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
+using System.Diagnostics.CodeAnalysis;
+
 using NUnit.Framework;
 
 namespace Finebits.Network.RestClient.Test
 {
-    public class HeaderCollectionTest
+    [SuppressMessage("Performance", "CA1812: Avoid uninstantiated internal classes", Justification = "Class is instantiated via NUnit Framework")]
+    internal class HeaderCollectionTests
     {
-        [TestCaseSource(typeof(Data.HeaderCollectionTestData), nameof(Data.HeaderCollectionTestData.HeaderTupleParams))]
-        public void TupleTest(IEnumerable<(string?, string?)> headers, IEnumerable<(string?, string?)>? result)
-        {
-            result ??= headers;
-
-            var headerCollection = new HeaderCollection(headers);
-
-            using var request = new HttpRequestMessage();
-            headerCollection.UpdateHeaders(request);
-
-            foreach ((var header, var value) in result ?? Enumerable.Empty<(string?, string?)>())
-            {
-                if (header is not null)
-                {
-                    var values = request.Headers.GetValues(header);
-                    Assert.That(values, Does.Contain(value));
-                }
-            }
-        }
-
-        [TestCaseSource(typeof(Data.HeaderCollectionTestData), nameof(Data.HeaderCollectionTestData.HeaderPairParams))]
-        public void PairTest(
-            IEnumerable<KeyValuePair<string, IEnumerable<string?>?>> headers,
-            IEnumerable<(string, string)>? addedHeaders = null,
-            IEnumerable<(string, bool)>? notHeaders = null)
-        {
-            var headerCollection = new HeaderCollection(headers, false);
-
-            using var request = new HttpRequestMessage();
-            headerCollection.UpdateHeaders(request);
-
-            foreach ((var header, var value) in addedHeaders ?? Enumerable.Empty<(string, string)>())
-            {
-                var values = request.Headers.GetValues(header);
-                Assert.That(values, Does.Contain(value));
-            }
-
-            foreach ((var header, var assert) in notHeaders ?? Enumerable.Empty<(string, bool)>())
-            {
-                if (assert)
-                {
-                    Assert.Throws<FormatException>(() => request.Headers.Contains(header));
-                }
-                else
-                {
-                    Assert.That(request.Headers.Contains(header), Is.False);
-                }
-            }
-        }
-
         [Test]
-        public void NullTest()
+        public void Construct_NullParam_Exception()
         {
             Assert.Throws<ArgumentNullException>(() =>
             {
@@ -119,36 +72,69 @@ namespace Finebits.Network.RestClient.Test
             });
         }
 
-        [TestCaseSource(typeof(Data.HeaderCollectionTestData), nameof(Data.HeaderCollectionTestData.AdditionalHeadersParams))]
-        public void AddHeadersTest(
-            IEnumerable<(string?, string?)> headers,
-            IEnumerable<(string?, string?)> extraHeaders,
-            IEnumerable<(string, string?)> result,
-            IEnumerable<(string, bool)> notHeaders)
+
+        [TestCaseSource(typeof(Data.HeaderCollectionTestData), nameof(Data.HeaderCollectionTestData.HeaderTupleCases))]
+        public void Construct_TupleParam_Success(string _, Data.HeaderCollectionTestData.TupleTestData data)
         {
-            var headerCollection = new HeaderCollection(headers);
-            headerCollection.Add(extraHeaders);
+            var headerCollection = new HeaderCollection(data.Headers);
 
             using var request = new HttpRequestMessage();
             headerCollection.UpdateHeaders(request);
 
-            foreach ((var header, var value) in result ?? Enumerable.Empty<(string, string?)>())
-            {
-                var values = request.Headers.GetValues(header);
-                Assert.That(values, Does.Contain(value));
-            }
+            Assert.That(request.Headers, data.IsEmpty ? Is.Empty : Is.Not.Empty);
 
-            foreach ((var header, var assert) in notHeaders ?? Enumerable.Empty<(string, bool)>())
+            Assert.Multiple(() =>
             {
-                if (assert)
+                foreach ((string header, string value) in data.Result)
                 {
-                    Assert.Throws<FormatException>(() => request.Headers.Contains(header));
+                    var values = request.Headers.GetValues(header);
+                    Assert.That(values, Does.Contain(value));
                 }
-                else
+            });
+        }
+
+        [TestCaseSource(typeof(Data.HeaderCollectionTestData), nameof(Data.HeaderCollectionTestData.HeaderKeyValuePairCases))]
+        public void Construct_KeyValuePairParam_Success(string _, Data.HeaderCollectionTestData.KeyValuePairTestData data)
+        {
+            var headerCollection = new HeaderCollection(data.Headers, false);
+
+            using var request = new HttpRequestMessage();
+            headerCollection.UpdateHeaders(request);
+
+            Assert.That(request.Headers, data.IsEmpty ? Is.Empty : Is.Not.Empty);
+
+            Assert.Multiple(() =>
+            {
+                foreach ((string header, string value) in data.Result)
                 {
-                    Assert.That(request.Headers.Contains(header), Is.False);
+                    var values = request.Headers.GetValues(header);
+                    Assert.That(values, Does.Contain(value));
                 }
-            }
+            });
+        }
+
+
+        [TestCaseSource(typeof(Data.HeaderCollectionTestData), nameof(Data.HeaderCollectionTestData.AdditionalHeadersCases))]
+        public void Add_TupleParam_Success(string _, Data.HeaderCollectionTestData.AdditionalTupleTestData data)
+        {
+            var headerCollection = new HeaderCollection(data.Headers)
+            {
+                data.AdditionalHeaders
+            };
+
+            using var request = new HttpRequestMessage();
+            headerCollection.UpdateHeaders(request);
+
+            Assert.That(request.Headers, data.IsEmpty ? Is.Empty : Is.Not.Empty);
+
+            Assert.Multiple(() =>
+            {
+                foreach ((string header, string value) in data.Result)
+                {
+                    var values = request.Headers.GetValues(header);
+                    Assert.That(values, Does.Contain(value));
+                }
+            });
         }
     }
 }
