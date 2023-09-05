@@ -16,47 +16,18 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
-using System;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Finebits.Network.RestClient
+namespace Finebits.Network.RestClient.Test.Fakes
 {
-    public class Client
+    internal class FakeRestClient : Client
     {
-        private readonly HttpClient _httpClient;
-        private readonly Uri _baseUri;
+        public FakeRestClient(HttpClient? httpClient, Uri? baseUri) : base(httpClient, baseUri)
+        { }
 
-        public Client(HttpClient httpClient, Uri baseUri)
+        public Task<HttpStatusCode> SendMessageAsync(Message? message, CancellationToken cancellationToken = default)
         {
-            if (httpClient is null)
-            {
-                throw new ArgumentNullException(nameof(httpClient));
-            }
-
-            _httpClient = httpClient;
-            _baseUri = baseUri;
-        }
-
-        protected async Task<HttpStatusCode> SendAsync(Message message, CancellationToken cancellationToken = default)
-        {
-            if (message is null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using (var request = await message.CreateRequestAsync(_baseUri, cancellationToken).ConfigureAwait(false))
-            {
-                using (var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false))
-                {
-                    await message.CreateResponseAsync(response, cancellationToken).ConfigureAwait(false);
-                    return response.StatusCode;
-                }
-            }
+            return SendAsync(message, cancellationToken);
         }
     }
 }

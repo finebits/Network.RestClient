@@ -7,9 +7,10 @@
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>Finebits.Network.RestClient.Test</AssemblyName>
-
     <AnalysisLevel>6.0-all</AnalysisLevel>
+
+    <AssemblyName>Finebits.Network.RestClient.Test</AssemblyName>
+    <RootNamespace>Finebits.Network.RestClient.Test</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,7 +24,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="NUnit.Analyzers" Version="3.6.1" />
