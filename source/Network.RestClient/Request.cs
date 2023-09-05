@@ -16,6 +16,8 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -68,6 +70,26 @@ namespace Finebits.Network.RestClient
         protected internal override Task<HttpContent> CreateContentAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult<HttpContent>(JsonContent.Create(inputValue: Payload, options: Options));
+        }
+    }
+
+    public class FormUrlEncodedRequest : Request
+    {
+        public IEnumerable<KeyValuePair<string, string>> Payload { get; }
+
+        public FormUrlEncodedRequest(IEnumerable<KeyValuePair<string, string>> payload)
+        {
+            if (payload is null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
+            Payload = payload;
+        }
+
+        protected internal override Task<HttpContent> CreateContentAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult<HttpContent>(new FormUrlEncodedContent(Payload));
         }
     }
 }

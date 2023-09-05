@@ -16,10 +16,12 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
+using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Mime;
 using System.Text;
+using System.Web;
 
 using Finebits.Network.RestClient.Test.Fakes;
 
@@ -178,6 +180,57 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
                 Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.CustomValue, DataSet.ExtraCustomValue })));
+            });
+        }
+
+
+        [Test]
+        public void Send_FormUrlEncodedPayload_OkResponse_Success()
+        {
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, UriSet.Host);
+
+            var collection = new NameValueCollection
+            {
+                { DataSet.CodeKey , nameof(HttpStatusCode.OK) },
+                { DataSet.Key , DataSet.CustomValue },
+                { DataSet.ExtraKey , DataSet.ExtraCustomValue },
+            };
+
+            using FormUrlEncodedPayloadMessage message = new(UriSet.FormUrlEncodedPayloadEndpoint, HttpMethod.Post)
+            {
+                Collection = collection
+            };
+
+            var query = string.Join("&", collection.AllKeys.Select(a => HttpUtility.UrlEncode(a) + "=" + HttpUtility.UrlEncode(collection[a])));
+
+            Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+                Assert.That(string.Equals(message.Response.Content, query, StringComparison.OrdinalIgnoreCase), Is.True);
+            });
+        }
+
+        [Test]
+        public void Send_FormUrlEncodedPayload_BadResponse_Success()
+        {
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, UriSet.Host);
+
+            using FormUrlEncodedPayloadMessage message = new(UriSet.FormUrlEncodedPayloadEndpoint, HttpMethod.Post)
+            {
+                Collection = new()
+            };
+
+            var exception = Assert.ThrowsAsync<HttpRequestException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(exception, Is.Not.Null);
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
+                Assert.That(message.Response.Content, Is.Empty);
             });
         }
     }

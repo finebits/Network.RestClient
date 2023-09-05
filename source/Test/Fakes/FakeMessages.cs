@@ -16,6 +16,7 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
+using System.Collections.Specialized;
 using System.Text.Json.Serialization;
 
 namespace Finebits.Network.RestClient.Test.Fakes
@@ -164,6 +165,24 @@ namespace Finebits.Network.RestClient.Test.Fakes
         {
             [JsonInclude]
             public string Value { get; set; }
+        }
+    }
+
+    internal class FormUrlEncodedPayloadMessage : FakeMessage<StringResponse, FormUrlEncodedRequest>
+    {
+        public required NameValueCollection Collection { get; init; }
+
+        public FormUrlEncodedPayloadMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
+        { }
+
+        protected override FormUrlEncodedRequest CreateRequest()
+        {
+            return new FormUrlEncodedRequest(Collection.AllKeys.Select(key => new KeyValuePair<string?, string?>(key, Collection[key])));
+        }
+
+        protected override StringResponse CreateResponse()
+        {
+            return new StringResponse();
         }
     }
 }
