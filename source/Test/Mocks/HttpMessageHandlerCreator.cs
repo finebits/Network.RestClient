@@ -115,6 +115,31 @@ namespace Finebits.Network.RestClient.Test.Mocks
                 )
                 .Configure
                 (
+                    uri: new Uri(UriSet.Host, UriSet.FormUrlEncodedPayloadEndpoint),
+                    valueFunction: (request) =>
+                    {
+                        if (request?.Content is FormUrlEncodedContent content)
+                        {
+                            var query = content.ReadAsStringAsync().Result;
+                            var collection = HttpUtility.ParseQueryString(query);
+
+                            var success = Enum.TryParse<HttpStatusCode>(collection[DataSet.CodeKey], out var code);
+
+                            return new HttpResponseMessage()
+                            {
+                                Content = new StringContent(query),
+                                StatusCode = success ? code : HttpStatusCode.BadRequest
+                            };
+                        }
+
+                        return new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.BadRequest
+                        };
+                    }
+                )
+                .Configure
+                (
                     uri: new Uri(UriSet.Host, UriSet.CustomHeaderEndpoint),
                     valueFunction: (request) =>
                     {
@@ -138,7 +163,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent(DataSet.StringOkValue)
+                        Content = new StringContent(DataSet.OkValue)
                     }
                 )
                 .Configure
@@ -147,7 +172,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StringContent(DataSet.StringBadRequestValue)
+                        Content = new StringContent(DataSet.BadRequestValue)
                     }
                 )
                 .Configure
@@ -181,7 +206,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.OK,
-                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.StreamOkValue)))
+                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.OkValue)))
                     }
                 )
                 .Configure
@@ -190,7 +215,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.StreamBadRequestValue)))
+                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.BadRequestValue)))
                     }
                 )
                 .Configure
@@ -206,7 +231,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         if (rm?.Method != HttpMethod.Head)
                         {
                             response.StatusCode = HttpStatusCode.OK;
-                            response.Content = new StringContent(DataSet.StringOkValue);
+                            response.Content = new StringContent(DataSet.OkValue);
                         }
 
                         response.Headers.Add(DataSet.HeaderKey, DataSet.HeaderOkValue);
@@ -223,7 +248,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         var response = new HttpResponseMessage()
                         {
                             StatusCode = HttpStatusCode.BadRequest,
-                            Content = new StringContent(DataSet.StringBadRequestValue),
+                            Content = new StringContent(DataSet.BadRequestValue),
                         };
 
                         response.Headers.Add(DataSet.HeaderKey, DataSet.HeaderBadRequestValue);
@@ -239,7 +264,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         var response = new HttpResponseMessage()
                         {
                             StatusCode = HttpStatusCode.OK,
-                            Content = new StringContent(DataSet.StringBadRequestValue),
+                            Content = new StringContent(DataSet.BadRequestValue),
                         };
 
                         response.Content.Headers.Add(DataSet.ContentHeaderKey, DataSet.ContentHeaderValue);

@@ -35,6 +35,7 @@ namespace Finebits.Network.RestClient.Test.Data
             public static readonly Uri StringOkEndpoint = new("/string/ok", UriKind.Relative);
             public static readonly Uri StringBadRequestEndpoint = new("/string/bad-request", UriKind.Relative);
 
+            public static readonly Uri FormUrlEncodedPayloadEndpoint = new("/from-url-encoded/payload", UriKind.Relative);
 
             public static readonly Uri JsonPayloadEndpoint = new("/json/payload", UriKind.Relative);
             public static readonly Uri JsonOkEndpoint = new("/json/ok", UriKind.Relative);
@@ -58,15 +59,12 @@ namespace Finebits.Network.RestClient.Test.Data
 
         internal static class DataSet
         {
-            public const string StringOkValue = "šomē-ütf8-valúē-你好世界";
-            public const string StringBadRequestValue = "bad-rēqûēšt-ütf8-valūē-你好世界";
+            public const string OkValue = "šomē-ütf8-valúē-你好世界";
+            public const string BadRequestValue = "bad-rēqûēšt-ütf8-valūē-你好世界";
 
             public const string JsonOkValue = "šomē-ütf8-valúē-你好世界";
             public const string JsonErrorValue = "ērror-ùtf8-valūē-你好世界";
             public const string JsonErrorDescriptionValue = "ērror-dēscrīptїon-ûtf8-valūē-你好世界";
-
-            public const string StreamOkValue = "šomē-ütf8-valúē-你好世界";
-            public const string StreamBadRequestValue = "bad-rēqûēšt-ütf8-valūē-你好世界";
 
             public const string ContentHeaderKey = "content-header-key";
             public const string ContentHeaderValue = "šomē-ütf8-valúē-你好世界";
@@ -75,6 +73,11 @@ namespace Finebits.Network.RestClient.Test.Data
             public const string HeaderOkValue = "šomē-ütf8-valúē";
             public const string HeaderOkExtraValue = "šomē-ēxtra-ütf8-valúē";
             public const string HeaderBadRequestValue = "bad-rēqûēšt-ütf8-valūē";
+
+            public const string CodeKey = "code";
+
+            public const string Key = "some-key";
+            public const string ExtraKey = "some-extra-utf8-key";
 
             public const string CustomValue = "šomē-ütf8-valúe-你好世界";
             public const string ExtraCustomValue = "šomē-ēxtra-ütf8-valúē-你好世界";

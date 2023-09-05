@@ -68,7 +68,7 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringBadRequestValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.BadRequestValue));
             });
         }
 
@@ -103,7 +103,7 @@ namespace Finebits.Network.RestClient.Test
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringOkValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.OkValue));
             });
         }
 
@@ -181,7 +181,7 @@ namespace Finebits.Network.RestClient.Test
 
                 Assert.That(message.Response.Stream, Is.Not.Null);
                 StreamReader reader = new(message.Response.Stream);
-                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.StreamBadRequestValue));
+                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.BadRequestValue));
             });
         }
 
@@ -221,7 +221,7 @@ namespace Finebits.Network.RestClient.Test
 
                 Assert.That(message.Response.Stream, Is.Not.Null);
                 StreamReader reader = new(message.Response.Stream);
-                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.StreamOkValue));
+                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.OkValue));
             });
         }
 
@@ -240,7 +240,7 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
 
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringBadRequestValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.BadRequestValue));
                 Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderBadRequestValue })));
             });
         }
@@ -259,7 +259,7 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
 
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.StringOkValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.OkValue));
                 Assert.That(message.Response.Headers, Does.Contain(
                     new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderOkValue, DataSet.HeaderOkExtraValue }))
                     );
