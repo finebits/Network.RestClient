@@ -123,7 +123,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                             var query = content.ReadAsStringAsync().Result;
                             var collection = HttpUtility.ParseQueryString(query);
 
-                            var success = Enum.TryParse<HttpStatusCode>(collection[DataSet.CodeKey], out var code);
+                            var success = Enum.TryParse<HttpStatusCode>(collection[DataSet.UrlCodeKey], out var code);
 
                             return new HttpResponseMessage()
                             {
@@ -163,7 +163,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent(DataSet.OkValue)
+                        Content = new StringContent(DataSet.Utf8Value)
                     }
                 )
                 .Configure
@@ -172,7 +172,49 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StringContent(DataSet.BadRequestValue)
+                        Content = new StringContent(DataSet.Utf8Value)
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.JsonOkStringEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(
+                            content: $$"""
+                                     {
+                                        "value": "{{DataSet.Utf8Value}}"
+                                     }
+                                     """,
+                            encoding: System.Text.Encoding.UTF8,
+                            mediaType: System.Net.Mime.MediaTypeNames.Application.Json)
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.JsonBadStringEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(
+                            content: "This is not JSON",
+                            encoding: System.Text.Encoding.UTF8,
+                            mediaType: System.Net.Mime.MediaTypeNames.Application.Json)
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.JsonBadMimeTypeEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(
+                            $$"""
+                            {
+                                "value": "{{DataSet.Utf8Value}}"
+                            }
+                            """)
                     }
                 )
                 .Configure
@@ -183,7 +225,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         StatusCode = HttpStatusCode.OK,
                         Content = JsonContent.Create(new
                         {
-                            value = DataSet.JsonOkValue
+                            value = DataSet.Utf8Value
                         })
                     }
                 )
@@ -195,8 +237,8 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         StatusCode = HttpStatusCode.BadRequest,
                         Content = JsonContent.Create(new
                         {
-                            error = DataSet.JsonErrorValue,
-                            error_description = DataSet.JsonErrorDescriptionValue
+                            error = DataSet.ErrorValue,
+                            error_description = DataSet.ErrorDescriptionValue
                         })
                     }
                 )
@@ -206,7 +248,7 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.OK,
-                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.OkValue)))
+                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.Utf8Value)))
                     }
                 )
                 .Configure
@@ -215,7 +257,16 @@ namespace Finebits.Network.RestClient.Test.Mocks
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.BadRequestValue)))
+                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.Utf8Value)))
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.StreamOkStringEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(DataSet.Utf8Value)
                     }
                 )
                 .Configure
@@ -231,11 +282,11 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         if (rm?.Method != HttpMethod.Head)
                         {
                             response.StatusCode = HttpStatusCode.OK;
-                            response.Content = new StringContent(DataSet.OkValue);
+                            response.Content = new StringContent(DataSet.Utf8Value);
                         }
 
-                        response.Headers.Add(DataSet.HeaderKey, DataSet.HeaderOkValue);
-                        response.Headers.Add(DataSet.HeaderKey, DataSet.HeaderOkExtraValue);
+                        response.Headers.Add(DataSet.HeaderKey, DataSet.Utf8Value);
+                        response.Headers.Add(DataSet.HeaderKey, DataSet.ExtraUtf8Value);
 
                         return response;
                     }
@@ -248,10 +299,10 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         var response = new HttpResponseMessage()
                         {
                             StatusCode = HttpStatusCode.BadRequest,
-                            Content = new StringContent(DataSet.BadRequestValue),
+                            Content = new StringContent(DataSet.Utf8Value),
                         };
 
-                        response.Headers.Add(DataSet.HeaderKey, DataSet.HeaderBadRequestValue);
+                        response.Headers.Add(DataSet.HeaderKey, DataSet.Utf8Value);
 
                         return response;
                     }
@@ -264,13 +315,13 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         var response = new HttpResponseMessage()
                         {
                             StatusCode = HttpStatusCode.OK,
-                            Content = new StringContent(DataSet.BadRequestValue),
+                            Content = new StringContent(DataSet.Utf8Value),
                         };
 
-                        response.Content.Headers.Add(DataSet.ContentHeaderKey, DataSet.ContentHeaderValue);
+                        response.Content.Headers.Add(DataSet.ContentHeaderKey, DataSet.Utf8Value);
 
-                        response.Headers.Add(DataSet.HeaderKey, DataSet.HeaderOkValue);
-                        response.Headers.Add(DataSet.HeaderKey, DataSet.HeaderOkExtraValue);
+                        response.Headers.Add(DataSet.HeaderKey, DataSet.Utf8Value);
+                        response.Headers.Add(DataSet.HeaderKey, DataSet.ExtraUtf8Value);
 
                         return response;
                     }
