@@ -146,7 +146,7 @@ namespace Finebits.Network.RestClient.Test
                 Payload = new JsonPayloadMessage.RequestPayload
                 {
                     Code = nameof(HttpStatusCode.OK),
-                    Value = DataSet.CustomValue
+                    Value = DataSet.Utf8Value
                 }
             };
 
@@ -155,7 +155,7 @@ namespace Finebits.Network.RestClient.Test
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.CustomValue));
+                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.Utf8Value));
             });
         }
 
@@ -169,8 +169,8 @@ namespace Finebits.Network.RestClient.Test
             {
                 Headers = new HeaderCollection(new (string, string)[]
                 {
-                    (DataSet.HeaderKey, DataSet.CustomValue),
-                    (DataSet.HeaderKey, DataSet.ExtraCustomValue),
+                    (DataSet.HeaderKey, DataSet.Utf8Value),
+                    (DataSet.HeaderKey, DataSet.ExtraUtf8Value),
                 })
             };
 
@@ -179,7 +179,7 @@ namespace Finebits.Network.RestClient.Test
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.CustomValue, DataSet.ExtraCustomValue })));
+                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.Utf8Value, DataSet.ExtraUtf8Value })));
             });
         }
 
@@ -192,9 +192,9 @@ namespace Finebits.Network.RestClient.Test
 
             var collection = new NameValueCollection
             {
-                { DataSet.CodeKey , nameof(HttpStatusCode.OK) },
-                { DataSet.Key , DataSet.CustomValue },
-                { DataSet.ExtraKey , DataSet.ExtraCustomValue },
+                { DataSet.UrlCodeKey , nameof(HttpStatusCode.OK) },
+                { DataSet.UrlKey , DataSet.Utf8Value },
+                { DataSet.UrlExtraKey , DataSet.ExtraUtf8Value },
             };
 
             using FormUrlEncodedPayloadMessage message = new(UriSet.FormUrlEncodedPayloadEndpoint, HttpMethod.Post)

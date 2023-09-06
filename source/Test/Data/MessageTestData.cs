@@ -41,8 +41,13 @@ namespace Finebits.Network.RestClient.Test.Data
             public static readonly Uri JsonOkEndpoint = new("/json/ok", UriKind.Relative);
             public static readonly Uri JsonBadRequestEndpoint = new("/json/bad-request", UriKind.Relative);
 
+            public static readonly Uri JsonOkStringEndpoint = new("/json/ok-string", UriKind.Relative);
+            public static readonly Uri JsonBadStringEndpoint = new("/json/bad-string", UriKind.Relative);
+            public static readonly Uri JsonBadMimeTypeEndpoint = new("/json/bad-mime-type", UriKind.Relative);
+
             public static readonly Uri StreamOkEndpoint = new("/stream/ok", UriKind.Relative);
             public static readonly Uri StreamBadRequestEndpoint = new("/stream/bad-request", UriKind.Relative);
+            public static readonly Uri StreamOkStringEndpoint = new("/stream/ok-string", UriKind.Relative);
 
             public static readonly Uri ContentHeaderOkEndpoint = new("/content-header/ok", UriKind.Relative);
             public static readonly Uri HeaderSuccessRequestEndpoint = new("/header/success", UriKind.Relative);
@@ -59,28 +64,17 @@ namespace Finebits.Network.RestClient.Test.Data
 
         internal static class DataSet
         {
-            public const string OkValue = "šomē-ütf8-valúē-你好世界";
-            public const string BadRequestValue = "bad-rēqûēšt-ütf8-valūē-你好世界";
-
-            public const string JsonOkValue = "šomē-ütf8-valúē-你好世界";
-            public const string JsonErrorValue = "ērror-ùtf8-valūē-你好世界";
-            public const string JsonErrorDescriptionValue = "ērror-dēscrīptїon-ûtf8-valūē-你好世界";
-
-            public const string ContentHeaderKey = "content-header-key";
-            public const string ContentHeaderValue = "šomē-ütf8-valúē-你好世界";
-
             public const string HeaderKey = "header-key";
-            public const string HeaderOkValue = "šomē-ütf8-valúē";
-            public const string HeaderOkExtraValue = "šomē-ēxtra-ütf8-valúē";
-            public const string HeaderBadRequestValue = "bad-rēqûēšt-ütf8-valūē";
+            public const string ContentHeaderKey = "content-header-key";
 
-            public const string CodeKey = "code";
+            public const string UrlCodeKey = "code";
+            public const string UrlKey = "url-key";
+            public const string UrlExtraKey = "url-extra-key";
 
-            public const string Key = "some-key";
-            public const string ExtraKey = "some-extra-utf8-key";
-
-            public const string CustomValue = "šomē-ütf8-valúe-你好世界";
-            public const string ExtraCustomValue = "šomē-ēxtra-ütf8-valúē-你好世界";
+            public const string Utf8Value = "šomē-ütf8-valúe-你好世界";
+            public const string ExtraUtf8Value = "šomē-ēxtra-ütf8-valúē-你好世界";
+            public const string ErrorValue = "ērror-ùtf8-valūē-你好世界";
+            public const string ErrorDescriptionValue = "ērror-dēscrīptїon-ûtf8-valūē-你好世界";
             public const string EmptyValue = "";
         }
     }
