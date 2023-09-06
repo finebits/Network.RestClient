@@ -45,24 +45,30 @@ namespace Finebits.Network.RestClient
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content is StringContent stringContent)
+            if (content != null)
             {
-                Content = await stringContent.ReadAsStringAsync().ConfigureAwait(false);
+                Content = await content.ReadAsStringAsync().ConfigureAwait(false);
             }
         }
     }
 
     public class JsonResponse<TContent> : Response
     {
+        private const string JsonMediaType = "application/json";
         public TContent Content { get; protected set; }
         public JsonSerializerOptions Options { get; set; }
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content is JsonContent jsonContent)
+            if (content != null && IsJsonMediaType(content))
             {
-                Content = await jsonContent.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
+                Content = await content.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        private static bool IsJsonMediaType(HttpContent content)
+        {
+            return string.Equals(content?.Headers?.ContentType?.MediaType, JsonMediaType, StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -109,9 +115,9 @@ namespace Finebits.Network.RestClient
 
         protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content is StreamContent streamContent)
+            if (content != null)
             {
-                await streamContent.CopyToAsync(Stream).ConfigureAwait(false);
+                await content.CopyToAsync(Stream).ConfigureAwait(false);
                 Stream.Position = 0;
             }
         }

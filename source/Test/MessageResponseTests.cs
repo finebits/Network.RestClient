@@ -68,7 +68,7 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.BadRequestValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.Utf8Value));
             });
         }
 
@@ -86,7 +86,7 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content, Is.EqualTo(default(string)));
+                Assert.That(message.Response.Content, Is.EqualTo(string.Empty));
             });
         }
 
@@ -103,7 +103,7 @@ namespace Finebits.Network.RestClient.Test
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.OkValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.Utf8Value));
             });
         }
 
@@ -121,8 +121,8 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(message.Response.Content.Error, Is.EqualTo(DataSet.JsonErrorValue));
-                Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(DataSet.JsonErrorDescriptionValue));
+                Assert.That(message.Response.Content.Error, Is.EqualTo(DataSet.ErrorValue));
+                Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(DataSet.ErrorDescriptionValue));
                 Assert.That(message.Response.Content.Value, Is.EqualTo(default));
             });
         }
@@ -160,7 +160,59 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
                 Assert.That(message.Response.Content.Error, Is.EqualTo(default));
                 Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(default));
-                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.JsonOkValue));
+                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.Utf8Value));
+            });
+        }
+
+        [Test]
+        public void Send_OkResponse_JsonOkString_Success()
+        {
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, UriSet.Host);
+
+            using JsonMessage message = new(UriSet.JsonOkStringEndpoint);
+
+            Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+                Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.Utf8Value));
+            });
+        }
+
+        [Test]
+        public void Send_OkResponse_JsonBadString_Exception()
+        {
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, UriSet.Host);
+
+            using JsonMessage message = new(UriSet.JsonBadStringEndpoint);
+
+            var exception = Assert.ThrowsAsync<System.Text.Json.JsonException>(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(exception, Is.Not.Null);
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+                Assert.That(message.Response.Content, Is.EqualTo(default(JsonMessage.Data)));
+            });
+        }
+
+        [Test]
+        public void Send_OkResponse_JsonBadMimeType_Success()
+        {
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, UriSet.Host);
+
+            using JsonMessage message = new(UriSet.JsonBadMimeTypeEndpoint);
+
+            Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+                Assert.That(message.Response.Content, Is.EqualTo(default(JsonMessage.Data)));
             });
         }
 
@@ -181,7 +233,7 @@ namespace Finebits.Network.RestClient.Test
 
                 Assert.That(message.Response.Stream, Is.Not.Null);
                 StreamReader reader = new(message.Response.Stream);
-                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.BadRequestValue));
+                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.Utf8Value));
             });
         }
 
@@ -206,6 +258,26 @@ namespace Finebits.Network.RestClient.Test
         }
 
         [Test]
+        public void Send_OkResponse_StreamStringContent_Success()
+        {
+            using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
+            FakeRestClient client = new(httpClient, UriSet.Host);
+
+            using StreamMessage message = new(UriSet.StreamOkStringEndpoint);
+
+            Assert.DoesNotThrowAsync(async () => await client.SendMessageAsync(message).ConfigureAwait(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+
+                Assert.That(message.Response.Stream, Is.Not.Null);
+                StreamReader reader = new(message.Response.Stream);
+                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.Utf8Value));
+            });
+        }
+
+        [Test]
         public void Send_OkResponse_StreamContent_Success()
         {
             using HttpClient httpClient = new(Mocks.HttpMessageHandlerCreator.Create().Object);
@@ -221,7 +293,7 @@ namespace Finebits.Network.RestClient.Test
 
                 Assert.That(message.Response.Stream, Is.Not.Null);
                 StreamReader reader = new(message.Response.Stream);
-                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.OkValue));
+                Assert.That(reader.ReadToEnd(), Is.EqualTo(DataSet.Utf8Value));
             });
         }
 
@@ -240,8 +312,8 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(exception, Is.Not.Null);
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
 
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.BadRequestValue));
-                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderBadRequestValue })));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.Utf8Value));
+                Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.Utf8Value })));
             });
         }
 
@@ -259,9 +331,9 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
 
-                Assert.That(message.Response.Content, Is.EqualTo(DataSet.OkValue));
+                Assert.That(message.Response.Content, Is.EqualTo(DataSet.Utf8Value));
                 Assert.That(message.Response.Headers, Does.Contain(
-                    new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderOkValue, DataSet.HeaderOkExtraValue }))
+                    new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.Utf8Value, DataSet.ExtraUtf8Value }))
                     );
             });
         }
@@ -280,9 +352,9 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.NoContent));
 
-                Assert.That(message.Response.Content, Is.EqualTo(default(string)));
+                Assert.That(message.Response.Content, Is.EqualTo(string.Empty));
                 Assert.That(message.Response.Headers, Does.Contain(
-                    new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderOkValue, DataSet.HeaderOkExtraValue }))
+                    new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.Utf8Value, DataSet.ExtraUtf8Value }))
                     );
             });
         }
@@ -301,8 +373,8 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
 
-                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.HeaderOkValue, DataSet.HeaderOkExtraValue })));
-                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.ContentHeaderKey, new[] { DataSet.ContentHeaderValue })));
+                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.Utf8Value, DataSet.ExtraUtf8Value })));
+                Assert.That(message.Response.GetAllHeaders(), Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.ContentHeaderKey, new[] { DataSet.Utf8Value })));
             });
         }
 
