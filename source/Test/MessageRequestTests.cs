@@ -43,9 +43,8 @@ namespace Finebits.Network.RestClient.Test
 
             using StringPayloadMessage message = new(UriSet.StringPayloadEndpoint)
             {
-                StringRequest = new StringRequest
+                StringRequest = new StringRequest(nameof(HttpStatusCode.BadRequest))
                 {
-                    Payload = nameof(HttpStatusCode.BadRequest),
                     MediaType = MediaTypeNames.Text.Plain
                 }
             };
@@ -68,9 +67,8 @@ namespace Finebits.Network.RestClient.Test
 
             using StringPayloadMessage message = new(UriSet.StringPayloadEndpoint)
             {
-                StringRequest = new StringRequest
+                StringRequest = new StringRequest(DataSet.EmptyValue)
                 {
-                    Payload = DataSet.EmptyValue,
                     Encoding = Encoding.UTF8,
                     MediaType = MediaTypeNames.Text.Plain
                 }
@@ -94,9 +92,8 @@ namespace Finebits.Network.RestClient.Test
 
             using StringPayloadMessage message = new(UriSet.StringPayloadEndpoint)
             {
-                StringRequest = new StringRequest
+                StringRequest = new StringRequest(nameof(HttpStatusCode.OK))
                 {
-                    Payload = nameof(HttpStatusCode.OK),
                     Encoding = Encoding.UTF8,
                 }
             };
@@ -182,7 +179,6 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(message.Response.Headers, Does.Contain(new KeyValuePair<string, IEnumerable<string>>(DataSet.HeaderKey, new[] { DataSet.Utf8Value, DataSet.ExtraUtf8Value })));
             });
         }
-
 
         [Test]
         public void Send_FormUrlEncodedPayload_OkResponse_Success()

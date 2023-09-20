@@ -56,25 +56,10 @@ namespace Finebits.Network.RestClient.Test.Fakes
         { }
     }
 
-    internal class JsonMessage : FakeMessage<JsonResponse<JsonMessage.Data>>
+    internal class JsonMessage : FakeMessage<JsonResponse<JsonData>>
     {
         public JsonMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
         { }
-
-        public readonly struct Data
-        {
-            [JsonInclude]
-            [JsonPropertyName("error")]
-            public string? Error { get; init; }
-
-            [JsonInclude]
-            [JsonPropertyName("error_description")]
-            public string? ErrorDescription { get; init; }
-
-            [JsonInclude]
-            [JsonPropertyName("value")]
-            public string? Value { get; init; }
-        }
     }
 
     internal class StreamMessage : FakeMessage<StreamResponse>
@@ -184,5 +169,41 @@ namespace Finebits.Network.RestClient.Test.Fakes
         {
             return new StringResponse();
         }
+    }
+
+    internal class FlexibleMessage : FakeMessage<FlexibleResponse, EmptyRequest>
+    {
+        public FlexibleMessage(Uri endpoint, HttpMethod? method = null) : base(endpoint, method)
+        { }
+
+        protected override EmptyRequest CreateRequest()
+        {
+            return new EmptyRequest();
+        }
+
+        protected override FlexibleResponse CreateResponse()
+        {
+            return new FlexibleResponse(new Response[]
+            {
+                new JsonResponse<JsonData>(),
+                new StringResponse(),
+                new StreamResponse(),
+            });
+        }
+    }
+
+    public record JsonData
+    {
+        [JsonInclude]
+        [JsonPropertyName("error")]
+        public string? Error { get; init; }
+
+        [JsonInclude]
+        [JsonPropertyName("error_description")]
+        public string? ErrorDescription { get; init; }
+
+        [JsonInclude]
+        [JsonPropertyName("value")]
+        public string? Value { get; init; }
     }
 }
