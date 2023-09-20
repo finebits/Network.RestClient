@@ -18,7 +18,9 @@
 
 using System.Linq.Expressions;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Web;
 
 using Finebits.Network.RestClient.Test.Fakes;
@@ -159,11 +161,38 @@ namespace Finebits.Network.RestClient.Test.Mocks
                 )
                 .Configure
                 (
-                    uri: new Uri(UriSet.Host, UriSet.StringOkEndpoint),
+                    uri: new Uri(UriSet.Host, UriSet.StringTextOkEndpoint),
                     valueFunction: (_) => new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent(DataSet.Utf8Value)
+                        Content = new StringContent(DataSet.Utf8Value, new MediaTypeHeaderValue(MediaTypeNames.Text.Plain))
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.StringHtmlOkEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(DataSet.HtmlValue, new MediaTypeHeaderValue(MediaTypeNames.Text.Html))
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.StringXmlOkEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(DataSet.XmlValue, new MediaTypeHeaderValue(MediaTypeNames.Text.Xml))
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.StringRtfOkEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(DataSet.RtfValue, new MediaTypeHeaderValue(MediaTypeNames.Text.RichText))
                     }
                 )
                 .Configure
@@ -324,6 +353,49 @@ namespace Finebits.Network.RestClient.Test.Mocks
                         response.Headers.Add(DataSet.HeaderKey, DataSet.ExtraUtf8Value);
 
                         return response;
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.FlexibleBadRequestEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Content = JsonContent.Create(new
+                        {
+                            error = DataSet.ErrorValue,
+                            error_description = DataSet.ErrorDescriptionValue
+                        })
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.FlexibleOkStringEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(DataSet.Utf8Value),
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.FlexibleOkJsonEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = JsonContent.Create(new
+                        {
+                            value = DataSet.Utf8Value
+                        })
+                    }
+                )
+                .Configure
+                (
+                    uri: new Uri(UriSet.Host, UriSet.FlexibleOkStreamEndpoint),
+                    valueFunction: (_) => new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(DataSet.Utf8Value)))
                     }
                 )
                 .Configure

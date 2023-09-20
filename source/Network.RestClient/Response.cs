@@ -17,10 +17,12 @@
 // ---------------------------------------------------------------------------- //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,9 +32,9 @@ namespace Finebits.Network.RestClient
     public class Response
     {
         public HeaderCollection Headers { get; internal set; }
-        protected internal virtual Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        protected internal virtual Task<bool> ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
     }
 
@@ -43,12 +45,33 @@ namespace Finebits.Network.RestClient
     {
         public string Content { get; protected set; }
 
-        protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        protected internal override async Task<bool> ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is null)
             {
-                Content = await content.ReadAsStringAsync().ConfigureAwait(false);
+                return false;
             }
+
+            if (!IsTextMediaType(content))
+            {
+                return false;
+            }
+
+            Content = await content.ReadAsStringAsync().ConfigureAwait(false);
+            return true;
+        }
+
+        private static bool IsTextMediaType(HttpContent content)
+        {
+            var contentType = content?.Headers?.ContentType;
+
+            return contentType != null &&
+                    (
+                        string.Equals(contentType.MediaType, MediaTypeNames.Text.Plain, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(contentType.MediaType, MediaTypeNames.Text.Xml, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(contentType.MediaType, MediaTypeNames.Text.Html, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(contentType.MediaType, MediaTypeNames.Text.RichText, StringComparison.OrdinalIgnoreCase)
+                    );
         }
     }
 
@@ -58,12 +81,20 @@ namespace Finebits.Network.RestClient
         public TContent Content { get; protected set; }
         public JsonSerializerOptions Options { get; set; }
 
-        protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        protected internal override async Task<bool> ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null && IsJsonMediaType(content))
+            if (content is null)
             {
-                Content = await content.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
+                return false;
             }
+
+            if (!IsJsonMediaType(content))
+            {
+                return false;
+            }
+
+            Content = await content.ReadFromJsonAsync<TContent>(Options, cancellationToken).ConfigureAwait(false);
+            return true;
         }
 
         private static bool IsJsonMediaType(HttpContent content)
@@ -76,14 +107,15 @@ namespace Finebits.Network.RestClient
     {
         public HeaderCollection ContentHeaders { get; protected set; }
 
-        protected internal override Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        protected internal override Task<bool> ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is null)
             {
-                ContentHeaders = new HeaderCollection(content.Headers, false);
+                return Task.FromResult(false);
             }
 
-            return Task.CompletedTask;
+            ContentHeaders = new HeaderCollection(content.Headers, false);
+            return Task.FromResult(true);
         }
 
         public HeaderCollection GetAllHeaders()
@@ -113,13 +145,16 @@ namespace Finebits.Network.RestClient
             Stream = stream;
         }
 
-        protected internal override async Task ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        protected internal override async Task<bool> ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
         {
-            if (content != null)
+            if (content is null)
             {
-                await content.CopyToAsync(Stream).ConfigureAwait(false);
-                Stream.Position = 0;
+                return false;
             }
+
+            await content.CopyToAsync(Stream).ConfigureAwait(false);
+            Stream.Position = 0;
+            return true;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -140,6 +175,66 @@ namespace Finebits.Network.RestClient
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+    }
+
+    public class FlexibleResponse : Response, IDisposable
+    {
+        private bool _disposedValue;
+        private IEnumerable<Response> _responses;
+        public Response PickedResponse { get; protected set; }
+
+        public FlexibleResponse(IEnumerable<Response> responses)
+        {
+            if (responses is null)
+            {
+                throw new ArgumentNullException(nameof(responses));
+            }
+
+            _responses = responses;
+        }
+
+        protected internal override async Task<bool> ReadContentAsync(HttpContent content, CancellationToken cancellationToken)
+        {
+            foreach (var response in _responses)
+            {
+                if (await response.ReadContentAsync(content, cancellationToken).ConfigureAwait(false))
+                {
+                    PickedResponse = response;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    PickedResponse = null;
+                    _responses?.ToList().ForEach(response => DisposeObject(response));
+                    _responses = null;
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        private static void DisposeObject(object obj)
+        {
+            if (obj is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
     }
 }

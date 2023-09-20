@@ -32,7 +32,10 @@ namespace Finebits.Network.RestClient.Test.Data
             public static readonly Uri HttpStatusCodeEndpoint = new("/http-status-code", UriKind.Relative);
 
             public static readonly Uri StringPayloadEndpoint = new("/string/payload", UriKind.Relative);
-            public static readonly Uri StringOkEndpoint = new("/string/ok", UriKind.Relative);
+            public static readonly Uri StringTextOkEndpoint = new("/string/ok-text", UriKind.Relative);
+            public static readonly Uri StringHtmlOkEndpoint = new("/string/ok-html", UriKind.Relative);
+            public static readonly Uri StringXmlOkEndpoint = new("/string/ok-xml", UriKind.Relative);
+            public static readonly Uri StringRtfOkEndpoint = new("/string/ok-rtf", UriKind.Relative);
             public static readonly Uri StringBadRequestEndpoint = new("/string/bad-request", UriKind.Relative);
 
             public static readonly Uri FormUrlEncodedPayloadEndpoint = new("/from-url-encoded/payload", UriKind.Relative);
@@ -53,6 +56,11 @@ namespace Finebits.Network.RestClient.Test.Data
             public static readonly Uri HeaderSuccessRequestEndpoint = new("/header/success", UriKind.Relative);
             public static readonly Uri HeaderBadRequestEndpoint = new("/header/bad-request", UriKind.Relative);
             public static readonly Uri CustomHeaderEndpoint = new("/header/custom", UriKind.Relative);
+
+            public static readonly Uri FlexibleBadRequestEndpoint = new("/flexible/bad-request", UriKind.Relative);
+            public static readonly Uri FlexibleOkStringEndpoint = new("/flexible/ok-string", UriKind.Relative);
+            public static readonly Uri FlexibleOkJsonEndpoint = new("/flexible/ok-json", UriKind.Relative);
+            public static readonly Uri FlexibleOkStreamEndpoint = new("/flexible/ok-stream", UriKind.Relative);
 
             public const string HttpStatusCodeQueryParam = "code";
 
@@ -76,6 +84,21 @@ namespace Finebits.Network.RestClient.Test.Data
             public const string ErrorValue = "ērror-ùtf8-valūē-你好世界";
             public const string ErrorDescriptionValue = "ērror-dēscrīptїon-ûtf8-valūē-你好世界";
             public const string EmptyValue = "";
+
+            public const string HtmlValue = """
+                <html>
+                <h1>šomē-ütf8-valúe-你好世界</h1>
+                </html>
+                """;
+
+            public const string XmlValue = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <Root>
+                    <Value>šomē-ütf8-valúe-你好世界</Value>
+                </Root>
+                """;
+
+            public const string RtfValue = """{\rtf1\uc1 {foo bar}}""";
         }
     }
 }
