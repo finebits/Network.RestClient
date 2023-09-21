@@ -42,9 +42,19 @@ namespace Finebits.Network.RestClient
 
     public class StringRequest : Request
     {
-        public string Payload { get; set; }
+        public string Payload { get; }
         public Encoding Encoding { get; set; }
         public string MediaType { get; set; }
+
+        public StringRequest(string payload)
+        {
+            if (payload is null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
+            Payload = payload;
+        }
 
         protected internal override Task<HttpContent> CreateContentAsync(CancellationToken cancellationToken)
         {
