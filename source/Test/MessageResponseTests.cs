@@ -152,7 +152,7 @@ namespace Finebits.Network.RestClient.Test
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.BadRequest));
                 Assert.That(message.Response.Content.Error, Is.EqualTo(DataSet.ErrorValue));
                 Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(DataSet.ErrorDescriptionValue));
-                Assert.That(message.Response.Content.Value, Is.EqualTo(default));
+                Assert.That(message.Response.Content.Value, Is.Null);
             });
         }
 
@@ -187,8 +187,8 @@ namespace Finebits.Network.RestClient.Test
             Assert.Multiple(() =>
             {
                 Assert.That(message.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
-                Assert.That(message.Response.Content.Error, Is.EqualTo(default));
-                Assert.That(message.Response.Content.ErrorDescription, Is.EqualTo(default));
+                Assert.That(message.Response.Content.Error, Is.Null);
+                Assert.That(message.Response.Content.ErrorDescription, Is.Null);
                 Assert.That(message.Response.Content.Value, Is.EqualTo(DataSet.Utf8Value));
             });
         }
@@ -354,7 +354,7 @@ namespace Finebits.Network.RestClient.Test
             {
                 Assert.That(response.Content.Error, Is.EqualTo(DataSet.ErrorValue));
                 Assert.That(response.Content.ErrorDescription, Is.EqualTo(DataSet.ErrorDescriptionValue));
-                Assert.That(response.Content.Value, Is.EqualTo(default));
+                Assert.That(response.Content.Value, Is.Null);
             });
         }
 
@@ -417,8 +417,8 @@ namespace Finebits.Network.RestClient.Test
             Assert.That(response, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(response.Content.Error, Is.EqualTo(default));
-                Assert.That(response.Content.ErrorDescription, Is.EqualTo(default));
+                Assert.That(response.Content.Error, Is.Null);
+                Assert.That(response.Content.ErrorDescription, Is.Null);
                 Assert.That(response.Content.Value, Is.EqualTo(DataSet.Utf8Value));
             });
         }
