@@ -65,7 +65,7 @@ jobs:
     - name: Install dotnet
       uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v4.1.0
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 9.x
 
     - name: Build the project
       run: dotnet build ${{ env.nuget-project }} --configuration ${{ env.configuration }}
@@ -87,7 +87,7 @@ jobs:
     - name: Install dotnet
       uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v4.1.0
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 9.x
 
     - name: Pack
       uses: finebits/github-actions/package/nuget/pack@4a126d80a11c5fdc83ce884d3d23dffb30bc4495 # v2.0.0
